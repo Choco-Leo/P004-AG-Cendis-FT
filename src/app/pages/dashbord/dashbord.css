@@ -1,0 +1,63 @@
+.welcome-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100dvh - 4rem);
+  background-color: var(--ipsset-03-20);
+  padding: 2rem;
+}
+
+.welcome-card {
+  background: var(--ipsset-BLANCO);
+  padding: 4rem 3rem;
+  border-radius: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03);
+  text-align: center;
+  max-width: 550px;
+  width: 100%;
+  border: 1px solid var(--ipsset-03-40);
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.logo-wrapper {
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-wrapper img {
+  max-width: 280px;
+  height: auto;
+  object-fit: contain;
+}
+
+.welcome-content h1 {
+  font-size: 2.25rem;
+  color: var(--ipsset-01);
+  margin-bottom: 0.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.welcome-content p {
+  font-size: 1.15rem;
+  color: var(--ipsset-04);
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+}
+
+.welcome-date {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background-color: var(--ipsset-01);
+  color: var(--ipsset-BLANCO);
+  border-radius: 2.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(171, 0, 51, 0.2);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}

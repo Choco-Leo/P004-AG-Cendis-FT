@@ -1,0 +1,200 @@
+<div class="presentaciones-container">
+  <nav class="side-nav">
+    <ul>
+      @for (item of menuItems; track item) {
+        <li>
+          <button 
+            (click)="setActiveItem(item)"
+            [class.active]="item.active"
+            type="button">
+            {{item.title}}
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="content-container">
+    @for (item of menuItems; track item) {
+      @if (item.active) {
+        <div class="content-section">
+          <h3>{{item.title}}</h3>
+          <div class="content-body">
+            @switch (item.id) {
+              @case ('list') {
+                <div class="presentaciones-table">
+                  <h4>Presentaciones existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la presentación</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of presentaciones; track p.ID) {
+                        <tr>
+                          <td>{{ p.ID }}</td>
+                          <td>{{ p.NOM_PRESENTACION }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="p.ACTIVO == 1" [class.off]="p.ACTIVO == 0">
+                              {{ p.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('create') {
+                <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                  <div class="form-field">
+                    <label for="c-nom_presentacion">Nombre de la presentación</label>
+                    <input id="c-nom_presentacion" type="text" formControlName="nom_presentacion" placeholder="Ej. Caja, Bolsa..." />
+                    @if (createForm.get('nom_presentacion')?.errors?.['required'] && createForm.get('nom_presentacion')?.touched) {
+                      <div class="error-message">El nombre es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-row">
+                    <label for="c-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="c-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!createForm.valid">
+                    Crear Presentación
+                  </button>
+                </form>
+                <div class="presentaciones-table">
+                  <h4>Presentaciones existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la presentación</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of presentaciones; track p.ID) {
+                        <tr>
+                          <td>{{ p.ID }}</td>
+                          <td>{{ p.NOM_PRESENTACION }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="p.ACTIVO == 1" [class.off]="p.ACTIVO == 0">
+                              {{ p.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('edit') {
+                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="form-group">
+                  <div class="form-field">
+                    <label for="e-id">ID de la presentación</label>
+                    <input id="e-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                    @if (editForm.get('id')?.errors?.['required'] && editForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-nom_presentacion">Nombre de la presentación</label>
+                    <input id="e-nom_presentacion" type="text" formControlName="nom_presentacion" placeholder="Ej. Paquete" />
+                  </div>
+
+                  <div class="form-row">
+                    <label for="e-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="e-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!editForm.valid || !editForm.get('id')?.value">
+                    Actualizar Presentación
+                  </button>
+                </form>
+
+                <div class="presentaciones-table">
+                  <h4>Seleccione la presentación a actualizar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la presentación</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of presentaciones; track p.ID) {
+                        <tr (click)="setPresentacionToUpdate(p)" [class.selected]="editForm.get('id')?.value === p.ID">
+                          <td>{{ p.ID }}</td>
+                          <td>{{ p.NOM_PRESENTACION }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="p.ACTIVO == 1" [class.off]="p.ACTIVO == 0">
+                              {{ p.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('delete') {
+                <form [formGroup]="deleteForm" (ngSubmit)="onSubmitDelete()" class="form-group">
+                  <div class="form-field">
+                    <label for="d-id">ID de la presentación</label>
+                    <input id="d-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                    @if (deleteForm.get('id')?.errors?.['required'] && deleteForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <button type="submit" [disabled]="!deleteForm.valid || !deleteForm.get('id')?.value">
+                    Eliminar Presentación
+                  </button>
+                </form>
+
+                <div class="presentaciones-table">
+                  <h4>Seleccione la presentación a eliminar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la presentación</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of presentaciones; track p.ID) {
+                        <tr (click)="setPresentacionToDelete(p)" [class.selected]="deleteForm.get('id')?.value === p.ID">
+                          <td>{{ p.ID }}</td>
+                          <td>{{ p.NOM_PRESENTACION }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="p.ACTIVO == 1" [class.off]="p.ACTIVO == 0">
+                              {{ p.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

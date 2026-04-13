@@ -1,0 +1,68 @@
+<div class="accesos-container">
+  <div class="content-container">
+    <div class="content-section">
+      <h3>Accesos por Cendi</h3>
+      <div class="content-body">
+        <div class="dropdown">
+          <button class="dropdown-toggle" (click)="toggleDropdown()">
+            {{ selectedCendiLabel || 'Selecciona Cendi' }}
+            <span class="chevron"></span>
+          </button>
+
+          @if (dropdownOpen) {
+            <div class="dropdown-menu">
+              @for (cendi of cendis; track cendi) {
+                <button class="dropdown-item" (click)="selectCendi(cendi)">
+                  {{ cendi.NOM_CENDI }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (loading) {
+          <p class="loading">Cargando accesos...</p>
+        }
+
+        @if (errorMsg) {
+          <p class="error">{{ errorMsg }}</p>
+        }
+
+        @if (!loading && selectedCendiId && accesos.length === 0) {
+          <p>No hay accesos registrados para este Cendi.</p>
+        }
+
+        @if (accesos.length > 0) {
+          <table>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (acc of accesos; track acc) {
+                <tr>
+                  <td>{{ acc.USUARIO }}</td>
+                  <td>{{ acc.F_ENTRADA | date:'yyyy-MM-dd HH:mm' }}</td>
+                  <td>{{ acc.F_SALIDA ? (acc.F_SALIDA | date:'yyyy-MM-dd HH:mm') : '-' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <div class="pagination">
+            <button
+              class="pagination-next"
+              (click)="nextPage()"
+              [disabled]="loading || !selectedCendiId || accesos.length < pageSize"
+            >
+              Ver siguientes {{ pageSize }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

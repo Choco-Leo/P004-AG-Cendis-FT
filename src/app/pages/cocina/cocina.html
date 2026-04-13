@@ -1,0 +1,15 @@
+<div class="page-container">
+    <h2>Gestión de Cocina</h2>
+    <nav role="navigation" aria-label="Cocina">
+        @for (item of links; track item.path) {
+            <a [routerLink]="item.path" 
+               routerLinkActive="active"
+               [attr.aria-current]="item.path ? 'page' : undefined">
+                {{ item.label }}
+            </a>
+        }
+    </nav>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+</div>

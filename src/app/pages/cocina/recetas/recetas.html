@@ -1,0 +1,400 @@
+<div class="recetas-container">
+    <nav class="side-nav">
+        <ul>
+            @for (item of menuItems; track item) {
+                <li>
+                    <button 
+                        (click)="setActiveItem(item)"
+                        [class.active]="item.active"
+                        type="button">
+                        {{item.title}}
+                    </button>
+                </li>
+            }
+        </ul>
+    </nav>
+    
+    <div class="content-container">
+        @for (item of menuItems; track item) {
+            @if (item.active) {
+                <div class="content-section">
+                    <h3>{{item.title}}</h3>
+                    <div class="content-body">
+                        @switch (item.id) {
+                            @case ('list') {
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Edad</th>
+                                                <th>Horario</th>
+                                                <th>Activo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (receta of recetas; track receta.ID) {
+                                                <tr (click)="openViewModal(receta)" style="cursor: pointer;" title="Ver detalles">
+                                                    <td>{{receta.NOM_RECETA}}</td>
+                                                    <td>{{receta.RANGO_EDAD || receta.ID_RANGO_EDADES}}</td>
+                                                    <td>{{receta.HORARIO || receta.ID_HORARIOS}}</td>
+                                                    <td>
+                                                        <span class="status-chip" [class.on]="receta.ACTIVO == 1" [class.off]="receta.ACTIVO == 0">
+                                                            {{ receta.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            @empty {
+                                                <tr><td colspan="4">No hay recetas registradas</td></tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            @case ('create') {
+                                <form [formGroup]="recetaForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label for="nom_receta">Nombre Receta</label>
+                                            <input id="nom_receta" type="text" formControlName="nom_receta" placeholder="Nombre de la receta" />
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="id_rango_edades">Rango de Edad</label>
+                                            <select id="id_rango_edades" formControlName="id_rango_edades">
+                                                <option value="" disabled>Seleccione rango</option>
+                                                @for (edad of edades; track edad.ID) {
+                                                    <option [value]="edad.ID">{{edad.NOM_RANGO_EDAD}}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label for="id_horarios">Horario</label>
+                                            <select id="id_horarios" formControlName="id_horarios">
+                                                <option value="" disabled>Seleccione horario</option>
+                                                @for (horario of horarios; track horario.ID) {
+                                                    <option [value]="horario.ID">{{horario.NOM_HORARIO}}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="create-activo">Activo</label>
+                                            <div class="switch-wrapper">
+                                                <label class="switch">
+                                                    <input type="checkbox" formControlName="activo" id="create-activo" />
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="descrip">Descripción</label>
+                                        <textarea id="descrip" formControlName="descrip" rows="3" placeholder="Descripción detallada..."></textarea>
+                                    </div>
+
+                                    <!-- Ingredientes Section -->
+                                    <div class="ingredients-section">
+                                        <div class="section-header">
+                                            <h4>Ingredientes / Insumos</h4>
+                                            <button type="button" class="btn-secondary" (click)="openAddIngredientModal()">
+                                                + Agregar Ingrediente
+                                            </button>
+                                        </div>
+                                        
+                                        <table class="admin-table ingredients-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Insumo</th>
+                                                    <th>Porción</th>
+                                                    <th>Unidad</th>
+                                                    <th>Remover</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (detail of selectedRecetaDetails; track $index) {
+                                                    <tr>
+                                                        <td>{{detail.NOM_INSUMO}}</td>
+                                                        <td>{{detail.porcion | number:'1.2-2'}}</td>
+                                                        <td>{{detail.NOM_UNIDAD}}</td>
+                                                        <td>
+                                                            <button type="button" class="btn-icon delete" (click)="removeIngredient($index)">
+                                                                X
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                                @empty {
+                                                    <tr><td colspan="4" class="text-center">No hay ingredientes agregados</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <button type="submit" [disabled]="!recetaForm.valid" class="btn-primary">Crear Receta</button>
+                                </form>
+                            }
+                            @case ('edit') {
+                                <div class="edit-layout">
+                                    <div class="list-side">
+                                        <h4>Seleccione receta a editar</h4>
+                                        <table class="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Activo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (receta of recetas; track receta.ID) {
+                                                    <tr (click)="setRecetaToUpdate(receta)" [class.selected]="selectedRecetaId === receta.ID" style="cursor: pointer;">
+                                                        <td>{{receta.NOM_RECETA}}</td>
+                                                        <td>
+                                                            <span class="status-chip" [class.on]="receta.ACTIVO == 1" [class.off]="receta.ACTIVO == 0">
+                                                                {{ receta.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="form-side">
+                                        @if (selectedRecetaId) {
+                                            <form [formGroup]="recetaForm" (ngSubmit)="onSubmitUpdate()" class="form-group">
+                                                <div class="form-row">
+                                                    <div class="form-field">
+                                                        <label>Nombre Receta</label>
+                                                        <input type="text" formControlName="nom_receta" />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>Rango de Edad</label>
+                                                        <select formControlName="id_rango_edades">
+                                                            @for (edad of edades; track edad.ID) {
+                                                                <option [value]="edad.ID">{{edad.NOM_RANGO_EDAD}}</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-row">
+                                                    <div class="form-field">
+                                                        <label>Horario</label>
+                                                        <select formControlName="id_horarios">
+                                                            @for (horario of horarios; track horario.ID) {
+                                                                <option [value]="horario.ID">{{horario.NOM_HORARIO}}</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>Activo</label>
+                                                        <div class="switch-wrapper">
+                                                            <label class="switch">
+                                                                <input type="checkbox" formControlName="activo" />
+                                                                <span class="slider"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+            
+                                                <div class="form-field">
+                                                    <label>Descripción</label>
+                                                    <textarea formControlName="descrip" rows="3"></textarea>
+                                                </div>
+            
+                                                <!-- Ingredientes Section -->
+                                                <div class="ingredients-section">
+                                                    <div class="section-header">
+                                                        <h4>Ingredientes</h4>
+                                                        <button type="button" class="btn-secondary" (click)="openAddIngredientModal()">
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <table class="admin-table ingredients-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Insumo</th>
+                                                                <th>Porción</th>
+                                                                <th>Unidad</th>
+                                                                <th>Remover</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (detail of selectedRecetaDetails; track $index) {
+                                                                <tr>
+                                                                    <td>{{detail.NOM_INSUMO}}</td>
+                                                                    <td>{{detail.porcion | number:'1.2-2'}}</td>
+                                                                    <td>{{detail.NOM_UNIDAD}}</td>
+                                                                    <td>
+                                                                        <button type="button" class="btn-icon delete" (click)="removeIngredient($index)">
+                                                                            X
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                            @empty {
+                                                                <tr>
+                                                                    <td colspan="4" class="text-center">Sin ingredientes</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+            
+                                                <button type="submit" [disabled]="!recetaForm.valid" class="btn-primary">Actualizar Receta</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            @case ('delete') {
+                                <div class="delete-layout">
+                                    <h4>Seleccione receta a eliminar</h4>
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Borrar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (receta of recetas; track receta.ID) {
+                                                <tr>
+                                                    <td>{{receta.NOM_RECETA}}</td>
+                                                    <td>
+                                                        <button class="btn-danger" (click)="setRecetaToDelete(receta); confirmDelete()">
+                                                            Eliminar
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Modal for Adding Ingredients -->
+    @if (isModalOpen) {
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Agregar Ingrediente</h3>
+                    <button class="close-btn" (click)="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="detalleForm" (ngSubmit)="addIngredient()">
+                        <div class="form-field">
+                            <label>Insumo / Producto</label>
+                            <select formControlName="id_cat_insumos" style="width: 100%;">
+                                <option value="" disabled>Seleccione insumo</option>
+                                @for (insumo of insumos; track insumo.ID) {
+                                    <option [value]="insumo.ID">
+                                        {{insumo.NOM_INSUMO}}
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label>Porción</label>
+                                <input type="number" formControlName="porcion" step="0.01" min="0.01" placeholder="0.00" />
+                            </div>
+                            <div class="form-field">
+                                <label>Unidad</label>
+                                <div class="readonly-field">{{ getSelectedUnidad() || 'Seleccione un insumo' }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+                            <button type="submit" class="btn-primary" [disabled]="detalleForm.invalid">Agregar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal for Viewing Recipe -->
+    @if (isViewModalOpen && viewRecetaData) {
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>{{viewRecetaData.NOM_RECETA}}</h3>
+                    <button class="close-btn" (click)="closeViewModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="view-details" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="detail-row">
+                            <strong>Rango de Edad:</strong> 
+                            <span>{{viewRecetaData.RANGO_EDAD || viewRecetaData.ID_RANGO_EDADES}}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Horario:</strong> 
+                            <span>{{viewRecetaData.HORARIO || viewRecetaData.ID_HORARIOS}}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Estado:</strong> 
+                            <span class="status-chip" [class.on]="viewRecetaData.ACTIVO == 1" [class.off]="viewRecetaData.ACTIVO == 0">
+                                {{ viewRecetaData.ACTIVO == 1 ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </div>
+                        <div class="detail-row full-width" style="grid-column: 1 / -1; margin-top: 1rem;">
+                            <strong>Descripción:</strong>
+                            @if (loadingDesc) {
+                                <div class="loading-text">Cargando descripción...</div>
+                            } @else {
+                                <p class="description-text" style="background: #f9fafb; padding: 0.75rem; border-radius: 0.5rem; margin-top: 0.5rem; white-space: pre-wrap;">{{viewRecetaData.DESCRIP || 'Sin descripción'}}</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="ingredients-view-section">
+                        <h4>Ingredientes</h4>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Insumo</th>
+                                    <th>Porción</th>
+                                    <th>Unidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (loadingIns) {
+                                    <tr><td colspan="3" class="text-center">Cargando ingredientes...</td></tr>
+                                } @else {
+                                    @for (detail of viewRecetaDetails; track $index) {
+                                        <tr>
+                                            <td>{{detail.NOM_INSUMO || detail.INSUMO}}</td>
+                                            <td>{{detail.PORCION | number:'1.2-2'}}</td>
+                                            <td>{{detail.NOM_UNIDAD || detail.UNIDAD}}</td>
+                                        </tr>
+                                    }
+                                    @empty {
+                                        <tr><td colspan="3" class="text-center">Sin ingredientes</td></tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" (click)="closeViewModal()">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

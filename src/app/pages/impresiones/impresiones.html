@@ -1,0 +1,198 @@
+<div class="impresiones-container">
+    <nav class="side-nav">
+        <ul>
+            @for (item of menuItems; track item) {
+                <li>
+                    <button 
+                        (click)="setActiveItem(item)"
+                        [class.active]="item.active"
+                        type="button">
+                        {{item.title}}
+                    </button>
+                    
+                    @if (item.id === 'pedidofch' && item.active && isAdmin) {
+                        <div class="side-nav-extra">
+                            <label class="side-label">Cendis:</label>
+                            <div class="checkbox-list side-list">
+                                @for (cendi of cendis; track cendi.ID) {
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" 
+                                               [checked]="selectedCendisIds.includes(cendi.ID)"
+                                               (change)="toggleCendiSelection(cendi.ID)">
+                                        <span>{{cendi.NOM_CENDI}}</span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                    }
+                </li>
+            }
+        </ul>
+    </nav>
+    
+    <div class="content-container">
+        @for (item of menuItems; track item) {
+            @if (item.active) {
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3>{{item.title}}</h3>
+                    </div>
+                    <div class="content-body">
+                        @switch (item.id) {
+                            @case ('pedido') {
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label for="dateSelect">Fecha:</label>
+                                        <input type="date" id="dateSelect" [(ngModel)]="selectedDate" (change)="onDateChange()" >
+                                    </div>
+                                    
+                                    @if (isAdmin) {
+                                        <div class="form-field">
+                                            <label for="cendiSelect">Cendi:</label>
+                                            <select id="cendiSelect" [(ngModel)]="selectedCendiId" (change)="onCendiChange()">
+                                                <option [ngValue]="null" disabled>-- Seleccione Cendi --</option>
+                                                @for (cendi of cendis; track cendi.ID) {
+                                                    <option [value]="cendi.ID">{{cendi.NOM_CENDI}}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+
+                                    <div class="form-field">
+                                        <label for="pedidoSelect">Seleccione un Pedido:</label>
+                                        <select id="pedidoSelect" [(ngModel)]="selectedPedidoId" (change)="onPedidoSelect()">
+                                            <option [ngValue]="null" disabled>-- Seleccione --</option>
+                                            @for (pedido of pedidos; track pedido.ID) {
+                                                <option [value]="pedido.ID">Pedido #{{pedido.ID}}</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="categoriaSelect">Categoría:</label>
+                                        <select id="categoriaSelect" [(ngModel)]="selectedCategoria" (change)="onCategoriaChange()">
+                                            <option value="Alimentos">Alimentos</option>
+                                            <option value="Limpieza">Limpieza</option>
+                                            <option value="Merceria">Mercería</option>
+                                            <option value="Papeleria">Papelería</option>
+                                            <option value="Desechable">Desechable</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-field">
+                                        <label>&nbsp;</label>
+                                        <button 
+                                            type="button" 
+                                            (click)="downloadPedidoPdf()" 
+                                            [disabled]="!selectedPedidoId"
+                                            class="btn-download">
+                                            Descargar PDF
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            (click)="downloadPedidoExcel()" 
+                                            [disabled]="!selectedPedidoId"
+                                            class="btn-download btn-excel">
+                                            Descargar Excel
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if (isAdmin) {
+                                    <div class="firma-edit-section">
+                                        <div class="form-field">
+                                            <label for="firmaInput">Nombre de quien autoriza (Firma):</label>
+                                            <div class="input-group">
+                                                <input type="text" id="firmaInput" [(ngModel)]="firmaAutorizada" placeholder="Nombre completo">
+                                                <button type="button" (click)="updateFirma()" class="btn-save">
+                                                    <i class="fas fa-save"></i> Guardar Firma
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="pdf-preview-container">
+                                    @if (pdfPreviewUrl) {
+                                        <iframe [src]="pdfPreviewUrl" width="100%" height="600px" style="border: none;"></iframe>
+                                    } @else if (emptyMessage) {
+                                        <div class="empty-notice">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <p>{{emptyMessage}}</p>
+                                        </div>
+                                    } @else if (selectedPedidoId) {
+                                        <p>Generando vista previa...</p>
+                                    } @else {
+                                        <p>Seleccione un pedido para ver la vista previa.</p>
+                                    }
+                                </div>
+                            }
+                            @case ('menu') {
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label for="menuSelect">Seleccione un Menú:</label>
+                                        <select id="menuSelect" [(ngModel)]="selectedMenuId" (change)="onMenuSelect()">
+                                            <option [ngValue]="null" disabled>-- Seleccione --</option>
+                                            @for (menu of menus; track menu.ID) {
+                                                <option [value]="menu.ID">{{menu.NOMBRE}}</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label>&nbsp;</label>
+                                        <button 
+                                            type="button" 
+                                            (click)="downloadMenuPdf()" 
+                                            [disabled]="!selectedMenuId"
+                                            class="btn-download">
+                                            Descargar PDF
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="pdf-preview-container">
+                                    @if (pdfPreviewUrl) {
+                                        <iframe [src]="pdfPreviewUrl" width="100%" height="600px" style="border: none;"></iframe>
+                                    } @else if (selectedMenuId) {
+                                        <p>Generando vista previa...</p>
+                                    } @else {
+                                        <p>Seleccione un menú para ver la vista previa.</p>
+                                    }
+                                </div>
+                            }
+                            @case ('pedidofch') {
+                                <div class="form-row">
+                                    <div class="form-field">
+                                        <label for="startDate">Fecha Inicio:</label>
+                                        <input type="date" id="startDate" [(ngModel)]="selectedStartDate" (change)="onRangoDateChange()">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="endDate">Fecha Fin:</label>
+                                        <input type="date" id="endDate" [(ngModel)]="selectedEndDate" (change)="onRangoDateChange()">
+                                    </div>
+                                    
+                                    <div class="form-field">
+                                        <label>&nbsp;</label>
+                                        <button 
+                                            type="button" 
+                                            (click)="downloadRangoPedidoPdf()" 
+                                            [disabled]="!selectedStartDate || !selectedEndDate"
+                                            class="btn-download">
+                                            Descargar Reporte
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="pdf-preview-container">
+                                    @if (pdfPreviewUrl) {
+                                        <iframe [src]="pdfPreviewUrl" width="100%" height="600px" style="border: none;"></iframe>
+                                    } @else {
+                                        <p>Seleccione un rango de fechas para generar el reporte.</p>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

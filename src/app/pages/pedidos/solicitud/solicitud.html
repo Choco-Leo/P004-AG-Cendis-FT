@@ -1,0 +1,324 @@
+<div class="pedidos-container">
+  <nav class="side-nav">
+    <ul>
+      @for (item of menuItems; track item) {
+        <li>
+          <button 
+            (click)="setActiveItem(item)" 
+            [class.active]="item.active"
+            type="button">
+            {{ item.title }}
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="content-container">
+    @for (item of menuItems; track item) {
+      @if (item.active) {
+        @switch (item.id) {
+          @case ('create') {
+            <div class="content-section">
+              <h3>{{ item.title }}</h3>
+              <div class="content-body">
+                <form [formGroup]="pedidoForm" (ngSubmit)="onSubmitPedido()">
+                  <div class="form-row filter-row">
+                    <div class="form-field">
+                      <label for="p-fch">Fecha del pedido</label>
+                      <input id="p-fch" type="date" formControlName="fch" />
+                    </div>
+
+                    @if (isAdmin) {
+                      <div class="form-field">
+                        <label for="p-id_cendis">CENDI</label>
+                        <select id="p-id_cendis" formControlName="id_cendis">
+                          <option [ngValue]="null" disabled>Seleccione CENDI</option>
+                          @for (c of cendis; track c.ID) {
+                            <option [ngValue]="c.ID">{{ c.NOM_CENDI || c.NOM_CENDIS }}</option>
+                          }
+                        </select>
+                      </div>
+                    }
+
+                    <div class="form-field validate-btn">
+                      <label>&nbsp;</label>
+                      <button
+                        type="button"
+                        (click)="validarMenu()"
+                        [disabled]="!pedidoForm.get('fch')?.valid || (isAdmin && !pedidoForm.get('id_cendis')?.value)">
+                        Validar menú del día
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="secciones-header">
+                    <h4>Secciones</h4>
+                  </div>
+
+                  <div formArrayName="detallesSecciones" class="secciones-list">
+                    @for (r of rangosEdades; let i = $index; track r.ID) {
+                      <div [formGroupName]="i" class="seccion-row">
+                        <div class="form-field">
+                          <label>{{ r.NOM_RANGO_EDAD }}</label>
+                        </div>
+                        <div class="form-field">
+                          <label>Número de niños</label>
+                          <input type="number" formControlName="ninos" min="1" [disabled]="!hasMenuForDate" />
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="submit-actions">
+                    <button type="button" class="btn-secondary" [disabled]="!pedidoForm.valid" (click)="onSubmitPedido(false)">
+                      Crear Directamente
+                    </button>
+                    <button type="submit" [disabled]="!pedidoForm.valid">
+                      Crear y Revisar
+                    </button>
+                  </div>
+                </form>
+
+                @if (pedidoCreadoId && detallesCreacion.length > 0) {
+                  <div class="detalles-creacion">
+                    <h4>Detalles del pedido creado (#{{ pedidoCreadoId }})</h4>
+                    <div class="table-container">
+                      <table class="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Nombre Insumo</th>
+                            <th>Total</th>
+                            <th>C. Sugerida</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (d of detallesCreacion; let i = $index; track d.ID) {
+                            <tr>
+                              <td>{{ d.NOM_INSUMO }}</td>
+                              <td>{{ d.CANTIDAD_TOTAL }}</td>
+                              <td>
+                                <input
+                                  type="number"
+                                  [value]="d.CANTIDAD_SUGERIDA"
+                                  (input)="actualizarCantidadSugerida(i, $any($event.target).value)"
+                                  min="0"
+                                  step="0.01"
+                                />
+                              </td>
+                              <td>${{ d.PRECIO_UNITARIO | number:'1.2-2' }}</td>
+                              <td>${{ d.SUBTOTAL_TOTAL | number:'1.2-2' }}</td>
+                            </tr>
+                          }
+                          @empty {
+                            <tr><td colspan="5" class="text-center">Sin detalles</td></tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                    <button
+                      type="button"
+                      (click)="guardarCantidadesSugeridas()"
+                      [disabled]="guardandoDetalles"
+                    >
+                      Guardar cantidades sugeridas
+                    </button>
+                    
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @case ('consulta') {
+            <div class="content-section">
+              <h3>{{ item.title }}</h3>
+              <div class="content-body">
+                <form [formGroup]="pedidoForm">
+                  <div class="form-row filter-row">
+                    <div class="form-field">
+                      <label for="p-fch-consulta">Fecha del pedido</label>
+                      <input id="p-fch-consulta" type="date" formControlName="fch" />
+                    </div>
+
+                    @if (isAdmin) {
+                      <div class="form-field">
+                        <label for="p-id_cendis-consulta">CENDI</label>
+                        <select id="p-id_cendis-consulta" formControlName="id_cendis">
+                          <option [ngValue]="null" disabled>Seleccione CENDI</option>
+                          @for (c of cendis; track c.ID) {
+                            <option [ngValue]="c.ID">{{ c.NOM_CENDI || c.NOM_CENDIS }}</option>
+                          }
+                        </select>
+                      </div>
+                    }
+
+                    <div class="form-field validate-btn">
+                      <label>&nbsp;</label>
+                      <button
+                        type="button"
+                        (click)="consultarPedidos()"
+                        [disabled]="!pedidoForm.get('fch')?.valid || (isAdmin && !pedidoForm.get('id_cendis')?.value)">
+                        Consultar pedidos
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="pedidos-list">
+                    @if (pedidosConsultados) {
+                      @if (pedidos.length > 0) {
+                        <h4>Pedidos existentes para la fecha</h4>
+                        <div class="table-container">
+                          <table class="admin-table">
+                            <thead>
+                              <tr>
+                                <th>Pedido</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Cancelado</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (p of pedidos; track p.ID) {
+                                <tr
+                                  (click)="seleccionarPedido(p)"
+                                  [class.selected]="pedidoSeleccionado?.ID === p.ID"
+                                  style="cursor: pointer;"
+                                >
+                                  <td>#{{ p.ID }}</td>
+                                  <td>{{ p.FCH | date: 'dd/MM/yyyy':'UTC' }}</td>
+                                  <td>${{ p.PRECIO_TOTAL | number:'1.2-2' }}</td>
+                                  <td>
+                                    @if (p.CANCELADO) {
+                                      Sí
+                                    } @else {
+                                      <button type="button" class="btn-secondary" (click)="onCancelarPedido(p, $event)">
+                                        Cancelar
+                                      </button>
+                                    }
+                                  </td>
+                                </tr>
+                              }
+                              @empty {
+                                <tr><td colspan="3">No hay pedidos registrados para la fecha seleccionada.</td></tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+
+                        @if (pedidoSeleccionado) {
+                          <div class="detalles-layout">
+                            <div class="detalle-pedido">
+                              <h4>Detalles del pedido</h4>
+                              <div class="table-container">
+                                <table class="admin-table">
+                                  <thead>
+                                    <tr>
+                                      <th>Nombre Insumo</th>
+                                      <th>Cant. Total</th>
+                                      <th>Cant. Sugerida</th>
+                                      <th>Precio Unitario</th>
+                                      <th>Subtotal</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    @for (d of detallesPedido; track d.ID) {
+                                      <tr>
+                                        <td>{{ d.NOM_INSUMO }}</td>
+                                        <td>{{ d.CANTIDAD_TOTAL | number:'1.2-2' }}</td>
+                                        <td>{{ d.CANTIDAD_SUGERIDA | number:'1.2-2' }}</td>
+                                        <td>${{ d.PRECIO_UNITARIO | number:'1.2-2' }}</td>
+                                        <td>${{ d.SUBTOTAL_TOTAL | number:'1.2-2' }}</td>
+                                      </tr>
+                                    }
+                                    @empty {
+                                      <tr><td colspan="5" class="text-center">Sin detalles</td></tr>
+                                    }
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                            <div class="detalle-secciones">
+                              <h4>Detalle por secciones</h4>
+                              <div class="secciones-resumen">
+                                @for (s of seccionesPedido; track s.ID) {
+                                  <button
+                                    type="button"
+                                    class="btn-secondary seccion-chip"
+                                    (click)="seleccionarSeccion(s)"
+                                    [class.active]="seccionSeleccionadaId === s.ID"
+                                  >
+                                    {{ s.NOM_RANGO_EDAD || ('Rango ' + s.ID_RANGO_EDADES) }} - {{ s.NINOS }} niños
+                                  </button>
+                                }
+                              </div>
+
+                              @if (seccionSeleccionadaId) {
+                                <div class="table-container">
+                                  <table class="admin-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Nombre Insumo</th>
+                                        <th>Cant. Pedido</th>
+                                        <th>Cant. Redondeada</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      @for (ds of detallesSeccionSeleccionada; track ds.ID) {
+                                        <tr>
+                                          <td>{{ ds.NOM_INSUMO }}</td>
+                                          <td>{{ ds.CANTIDAD_PEDIDOS | number:'1.2-2' }}</td>
+                                          <td>{{ ds.CANTIDAD_REDONDEO | number:'1.2-2' }}</td>
+                                        </tr>
+                                      }
+                                      @empty {
+                                        <tr><td colspan="3" class="text-center">Sin detalle para la sección seleccionada</td></tr>
+                                      }
+                                    </tbody>
+                                  </table>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      } @else {
+                        <p>No hay pedidos registrados para la fecha seleccionada.</p>
+                      }
+                    }
+                  </div>
+                </form>
+              </div>
+            </div>
+          }
+        }
+      }
+    }
+  </div>
+</div>
+
+@if (showPasswordModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Validación de Administrador</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label>Contraseña de administrador</label>
+          <input type="password" [(ngModel)]="adminPassword" placeholder="Ingrese contraseña" />
+          @if (passwordError) {
+            <span class="error-text">{{ passwordError }}</span>
+          }
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="cancelarPasswordModal()">Cancelar</button>
+        <button type="button" (click)="confirmarGuardadoConPassword()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+}
+

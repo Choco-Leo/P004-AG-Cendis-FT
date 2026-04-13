@@ -1,0 +1,242 @@
+<div class="horarios-container">
+  <nav class="side-nav">
+    <ul>
+      @for (item of menuItems; track item) {
+        <li>
+          <button 
+            (click)="setActiveItem(item)"
+            [class.active]="item.active"
+            type="button">
+            {{item.title}}
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="content-container">
+    @for (item of menuItems; track item) {
+      @if (item.active) {
+        <div class="content-section">
+          <h3>{{item.title}}</h3>
+          <div class="content-body">
+            @switch (item.id) {
+              @case ('list') {
+                <div class="horarios-table">
+                  <h4>Horarios existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre del horario</th>
+                        <th>Hora mínima</th>
+                        <th>Hora máxima</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (h of horarios; track h.ID) {
+                        <tr>
+                          <td>{{ h.ID }}</td>
+                          <td>{{ h.NOM_HORARIO }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMIN) }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMAX) }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="h.ACTIVO == 1" [class.off]="h.ACTIVO == 0">
+                              {{ h.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('create') {
+                <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                  <div class="form-field">
+                    <label for="c-nom_horario">Nombre del horario</label>
+                    <input id="c-nom_horario" type="text" formControlName="nom_horario" placeholder="Ej. Matutino" />
+                    @if (createForm.get('nom_horario')?.errors?.['required'] && createForm.get('nom_horario')?.touched) {
+                      <div class="error-message">El nombre del horario es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="c-horamin">Hora mínima</label>
+                    <input id="c-horamin" type="time" formControlName="horamin" />
+                    @if (createForm.get('horamin')?.errors?.['required'] && createForm.get('horamin')?.touched) {
+                      <div class="error-message">La hora mínima es requerida</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="c-horamax">Hora máxima</label>
+                    <input id="c-horamax" type="time" formControlName="horamax" />
+                    @if (createForm.get('horamax')?.errors?.['required'] && createForm.get('horamax')?.touched) {
+                      <div class="error-message">La hora máxima es requerida</div>
+                    }
+                  </div>
+
+                  <div class="form-row">
+                    <label for="c-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="c-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!createForm.valid || (createForm.get('horamin')?.value >= createForm.get('horamax')?.value)">
+                    Crear Horario
+                  </button>
+                </form>
+                 <div class="horarios-table">
+                  <h4>Horarios existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre del horario</th>
+                        <th>Hora mínima</th>
+                        <th>Hora máxima</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (h of horarios; track h.ID) {
+                        <tr>
+                          <td>{{ h.ID }}</td>
+                          <td>{{ h.NOM_HORARIO }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMIN) }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMAX) }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="h.ACTIVO == 1" [class.off]="h.ACTIVO == 0">
+                              {{ h.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('edit') {
+                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="form-group">
+                  <div class="form-field">
+                    <label for="e-id">ID del horario</label>
+                    <input id="e-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                    @if (editForm.get('id')?.errors?.['required'] && editForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-nom_horario">Nombre del horario</label>
+                    <input id="e-nom_horario" type="text" formControlName="nom_horario" placeholder="Ej. Vespertino" />
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-horamin">Hora mínima</label>
+                    <input id="e-horamin" type="time" formControlName="horamin" />
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-horamax">Hora máxima</label>
+                    <input id="e-horamax" type="time" formControlName="horamax" />
+                  </div>
+
+                  <div class="form-row">
+                    <label for="e-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="e-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!editForm.valid || !editForm.get('id')?.value || (editForm.get('horamin')?.value >= editForm.get('horamax')?.value)">
+                    Actualizar Horario
+                  </button>
+                </form>
+
+                <div class="horarios-table">
+                  <h4>Seleccione el horario a actualizar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre del horario</th>
+                        <th>Hora mínima</th>
+                        <th>Hora máxima</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (h of horarios; track h.ID) {
+                        <tr (click)="setHorarioToUpdate(h)" [class.selected]="editForm.get('id')?.value === h.ID">
+                          <td>{{ h.ID }}</td>
+                          <td>{{ h.NOM_HORARIO }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMIN) }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMAX) }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="h.ACTIVO == 1" [class.off]="h.ACTIVO == 0">
+                              {{ h.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('delete') {
+                <form [formGroup]="deleteForm" (ngSubmit)="onSubmitDelete()" class="form-group">
+                  <div class="form-field">
+                    <label for="d-id">ID del horario</label>
+                    <input id="d-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                    @if (deleteForm.get('id')?.errors?.['required'] && deleteForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <button type="submit" [disabled]="!deleteForm.valid || !deleteForm.get('id')?.value">
+                    Eliminar Horario
+                  </button>
+                </form>
+
+                <div class="horarios-table">
+                  <h4>Seleccione el horario a eliminar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre del horario</th>
+                        <th>Hora mínima</th>
+                        <th>Hora máxima</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (h of horarios; track h.ID) {
+                        <tr (click)="setHorarioToDelete(h)" [class.selected]="deleteForm.get('id')?.value === h.ID">
+                          <td>{{ h.ID }}</td>
+                          <td>{{ h.NOM_HORARIO }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMIN) }}</td>
+                          <td>{{ formatTimeToHHmm(h.HORAMAX) }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="h.ACTIVO == 1" [class.off]="h.ACTIVO == 0">
+                              {{ h.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

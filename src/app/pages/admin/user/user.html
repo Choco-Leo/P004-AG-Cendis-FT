@@ -1,0 +1,334 @@
+<div class="user-container">
+  <nav class="side-nav">
+    <ul>
+      @for (item of menuItems; track item) {
+        <li>
+          <button 
+            (click)="setActiveItem(item)"
+            [class.active]="item.active"
+            type="button">
+            {{ item.title }}
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+  <div class="content-container">
+    @for (item of menuItems; track item) {
+      @if (item.active) {
+        <div class="content-section">
+          <h3>{{ item.title }}</h3>
+          <div class="content-body">
+            @switch (item.id) {
+              @case ('list') {
+                <div class="users-table">
+                  <h4>Usuarios existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido Paterno</th>
+                        <th>Apellido Materno</th>
+                        <th>Cendi</th>
+                        <th>Cargo</th>
+                        <th>Login</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of users; track u.ID) {
+                        <tr>
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOMBRE }}</td>
+                          <td>{{ u.APELLIDO_P }}</td>
+                          <td>{{ u.APELLIDO_M }}</td>
+                          <td>{{ u.NOMBRE_CENDI }}</td>
+                          <td>{{ u.NOMBRE_CARGO }}</td>
+                          <td>{{ u.LOGIN_CENDI }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('create') {
+                <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                  <div class="form-field">
+                    <label for="c-nombre">Nombre</label>
+                    <input id="c-nombre" type="text" formControlName="nombre" placeholder="Nombre" />
+                    @if (createForm.get('nombre')?.errors?.['required'] && createForm.get('nombre')?.touched) {
+                      <div class="error-message">El nombre es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="c-apellido_p">Apellido Paterno</label>
+                    <input id="c-apellido_p" type="text" formControlName="apellido_p" placeholder="Apellido paterno" />
+                    @if (createForm.get('apellido_p')?.errors?.['required'] && createForm.get('apellido_p')?.touched) {
+                      <div class="error-message">El apellido paterno es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="c-apellido_m">Apellido Materno</label>
+                    <input id="c-apellido_m" type="text" formControlName="apellido_m" placeholder="Apellido materno" />
+                    @if (createForm.get('apellido_m')?.errors?.['required'] && createForm.get('apellido_m')?.touched) {
+                      <div class="error-message">El apellido materno es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="c-id_cendis">Cendi</label>
+                    <select id="c-id_cendis" formControlName="id_cendis">
+                      <option [ngValue]="null" disabled>Seleccione un Cendi</option>
+                      @for (c of cendis; track c.ID) {
+                        <option [ngValue]="c.ID">{{ c.NOM_CENDI ?? ('Cendi ' + c.ID) }}</option>
+                      }
+                    </select>
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="c-id_cargos">Cargo</label>
+                    <select id="c-id_cargos" formControlName="id_cargos">
+                      <option [ngValue]="null" disabled>Seleccione un Cargo</option>
+                      @for (c of cargos; track c.ID) {
+                        <option [ngValue]="c.ID">{{ c.NOM_CARGO ?? ('Cargo ' + c.ID) }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <label for="c-login_cendi">Usuario (Login)</label>
+                    <input id="c-login_cendi" type="text" formControlName="login_cendi" placeholder="Login del usuario" />
+                    @if (createForm.get('login_cendi')?.errors?.['required'] && createForm.get('login_cendi')?.touched) {
+                      <div class="error-message">El login es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="c-password_cendi">Contraseña</label>
+                    <input id="c-password_cendi" type="password" formControlName="password_cendi" placeholder="Contraseña" />
+                    @if (createForm.get('password_cendi')?.errors?.['required'] && createForm.get('password_cendi')?.touched) {
+                      <div class="error-message">La contraseña es requerida</div>
+                    }
+                  </div>
+
+                  <div class="form-row">
+                    <label for="create-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="create-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!createForm.valid">Crear Usuario</button>
+                </form>
+
+                <div class="users-table">
+                  <h4>Usuarios existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido Paterno</th>
+                        <th>Apellido Materno</th>
+                        <th>Cendi</th>
+                        <th>Cargo</th>
+                        <th>Login</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of users; track u.ID) {
+                        <tr>
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOMBRE }}</td>
+                          <td>{{ u.APELLIDO_P }}</td>
+                          <td>{{ u.APELLIDO_M }}</td>
+                          <td>{{ u.NOMBRE_CENDI }}</td>
+                          <td>{{ u.NOMBRE_CARGO }}</td>
+                          <td>{{ u.LOGIN_CENDI }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('edit') {
+                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="form-group">
+                  <div class="form-field">
+                    <label for="e-id">ID del Usuario</label>
+                    <input id="e-id" type="number" formControlName="id" [min]="1" placeholder="ID del usuario" />
+                    @if (editForm.get('id')?.errors?.['required'] && editForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-nombre">Nombre</label>
+                    <input id="e-nombre" type="text" formControlName="nombre" placeholder="Nombre" />
+                    @if (editForm.get('nombre')?.errors?.['required'] && editForm.get('nombre')?.touched) {
+                      <div class="error-message">El nombre es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-apellido_p">Apellido Paterno</label>
+                    <input id="e-apellido_p" type="text" formControlName="apellido_p" placeholder="Apellido paterno" />
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-apellido_m">Apellido Materno</label>
+                    <input id="e-apellido_m" type="text" formControlName="apellido_m" placeholder="Apellido materno" />
+                  </div>
+
+                  <!-- Formulario Editar -->
+                  <div class="form-field">
+                    <label for="e-id_cendis">Cendi</label>
+                    <select id="e-id_cendis" formControlName="id_cendis">
+                      <option [ngValue]="null" disabled>Seleccione un Cendi</option>
+                      @for (c of cendis; track c.ID) {
+                        <option [ngValue]="c.ID">{{ c.NOM_CENDI ?? ('Cendi ' + c.ID) }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-id_cargos">Cargo</label>
+                    <select id="e-id_cargos" formControlName="id_cargos">
+                      <option [ngValue]="null" disabled>Seleccione un Cargo</option>
+                      @for (c of cargos; track c.ID) {
+                        <option [ngValue]="c.ID">{{ c.NOM_CARGO ?? ('Cargo ' + c.ID) }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-login_cendi">Usuario (Login)</label>
+                    <input id="e-login_cendi" type="text" formControlName="login_cendi" placeholder="Login del usuario" />
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-password_cendi">Contraseña</label>
+                    <input id="e-password_cendi" type="password" formControlName="password_cendi" placeholder="Nueva contraseña" />
+                  </div>
+
+                  <div class="form-row">
+                    <label for="edit-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="edit-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!editForm.valid || !editForm.get('id')?.value">
+                    Actualizar Usuario
+                  </button>
+                </form>
+
+                <div class="users-table">
+                  <h4>Seleccione el usuario a actualizar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido Paterno</th>
+                        <th>Apellido Materno</th>
+                        <th>Cendi</th>
+                        <th>Cargo</th>
+                        <th>Login</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of users; track u.ID) {
+                        <tr (click)="setUserToUpdate(u)" [class.selected]="editForm.get('id')?.value === u.ID">
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOMBRE }}</td>
+                          <td>{{ u.APELLIDO_P }}</td>
+                          <td>{{ u.APELLIDO_M }}</td>
+                          <td>{{ u.NOMBRE_CENDI }}</td>
+                          <td>{{ u.NOMBRE_CARGO }}</td>
+                          <td>{{ u.LOGIN_CENDI }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('delete') {
+                <form [formGroup]="deleteForm" (ngSubmit)="onSubmitDelete()" class="form-group">
+                  <div class="form-field">
+                    <label for="d-id">ID del Usuario</label>
+                    <input id="d-id" type="number" formControlName="id" [min]="1" placeholder="ID del usuario" />
+                    @if (deleteForm.get('id')?.errors?.['required'] && deleteForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <button type="submit" [disabled]="!deleteForm.valid || !deleteForm.get('id')?.value">
+                    Eliminar Usuario
+                  </button>
+                </form>
+
+                <div class="users-table">
+                  <h4>Seleccione el usuario a eliminar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido Paterno</th>
+                        <th>Apellido Materno</th>
+                        <th>Cendi</th>
+                        <th>Cargo</th>
+                        <th>Login</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of users; track u.ID) {
+                        <tr (click)="setUserToDelete(u)" [class.selected]="deleteForm.get('id')?.value === u.ID">
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOMBRE }}</td>
+                          <td>{{ u.APELLIDO_P }}</td>
+                          <td>{{ u.APELLIDO_M }}</td>
+                          <td>{{ u.NOMBRE_CENDI }}</td>
+                          <td>{{ u.NOMBRE_CARGO }}</td>
+                          <td>{{ u.LOGIN_CENDI }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

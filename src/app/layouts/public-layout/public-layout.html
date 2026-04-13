@@ -1,0 +1,16 @@
+<div class="public-layout-container">
+    <div class="public-layout-header">
+        <app-header-public></app-header-public>
+    </div>
+    <div class="public-layout-content">
+        <router-outlet></router-outlet>
+    </div>
+    <div class="public-layout-footer">
+        <app-footer></app-footer>
+    </div>
+    @if (showScrollButton) {
+        <button class="scroll-button" (click)="scrollToTop()">
+            <i class="Flecha"></i>
+        </button>
+    }
+</div>

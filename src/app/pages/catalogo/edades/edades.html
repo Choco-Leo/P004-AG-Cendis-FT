@@ -1,0 +1,242 @@
+<div class="edades-container">
+    <nav class="side-nav">
+        <ul>
+            @for (item of menuItems; track item) {
+                <li>
+                    <button 
+                        (click)="setActiveItem(item)"
+                        [class.active]="item.active"
+                        type="button">
+                        {{item.title}}
+                    </button>
+                </li>
+            }
+        </ul>
+    </nav>
+    
+    <div class="content-container">
+        @for (item of menuItems; track item) {
+            @if (item.active) {
+                <div class="content-section">
+                    <h3>{{item.title}}</h3>
+                    <div class="content-body">
+                        @switch (item.id) {
+                            @case ('list') {
+                                <div class="edades-table">
+                                    <h4>Rangos de edad existentes</h4>
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre del Rango</th>
+                                                <th>Edad mínima (meses)</th>
+                                                <th>Edad máxima (meses)</th>
+                                                <th class="col-activo">Activo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (e of edades; track e.ID) {
+                                                <tr>
+                                                    <td>{{ e.ID }}</td>
+                                                    <td>{{ e.NOM_RANGO_EDAD }}</td>
+                                                    <td>{{ e.EDADMIN_MESES }}</td>
+                                                    <td>{{ e.EDADMAX_MESES }}</td>
+                                                    <td class="col-activo">
+                                                        <span class="status-chip" [class.on]="e.ACTIVO == 1" [class.off]="e.ACTIVO == 0">
+                                                            {{ e.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            @case ('create') {
+                                <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                                    <div class="form-field">
+                                        <label for="c-nom_rango_edad">Nombre del rango</label>
+                                        <input id="c-nom_rango_edad" type="text" formControlName="nom_rango_edad" placeholder="Ej. 4-6 MESES" />
+                                        @if (createForm.get('nom_rango_edad')?.errors?.['required'] && createForm.get('nom_rango_edad')?.touched) {
+                                            <div class="error-message">El nombre del rango es requerido</div>
+                                        }
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="c-edadmin_meses">Edad mínima (meses)</label>
+                                        <input id="c-edadmin_meses" type="number" formControlName="edadmin_meses" [min]="0" placeholder="0" />
+                                        @if (createForm.get('edadmin_meses')?.errors?.['required'] && createForm.get('edadmin_meses')?.touched) {
+                                            <div class="error-message">La edad mínima es requerida</div>
+                                        }
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="c-edadmax_meses">Edad máxima (meses)</label>
+                                        <input id="c-edadmax_meses" type="number" formControlName="edadmax_meses" [min]="1" placeholder="-" />
+                                        @if (createForm.get('edadmax_meses')?.errors?.['required'] && createForm.get('edadmax_meses')?.touched) {
+                                            <div class="error-message">La edad máxima es requerida</div>
+                                        }
+                                    </div>
+
+                                    <div class="form-row">
+                                        <label for="c-activo">Activo</label>
+                                        <label class="switch">
+                                            <input type="checkbox" formControlName="activo" id="c-activo" />
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" [disabled]="!createForm.valid">
+                                        Crear Rango de Edad
+                                    </button>
+                                </form>
+                                <div class="edades-table">
+                                    <h4>Rangos de edad existentes</h4>
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre del Rango</th>
+                                                <th>Edad mínima (meses)</th>
+                                                <th>Edad máxima (meses)</th>
+                                                <th class="col-activo">Activo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (e of edades; track e.ID) {
+                                                <tr>
+                                                    <td>{{ e.ID }}</td>
+                                                    <td>{{ e.NOM_RANGO_EDAD }}</td>
+                                                    <td>{{ e.EDADMIN_MESES }}</td>
+                                                    <td>{{ e.EDADMAX_MESES }}</td>
+                                                    <td class="col-activo">
+                                                        <span class="status-chip" [class.on]="e.ACTIVO == 1" [class.off]="e.ACTIVO == 0">
+                                                            {{ e.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            @case ('edit') {
+                                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="form-group">
+                                    <div class="form-field">
+                                        <label for="e-id">ID del rango</label>
+                                        <input id="e-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                                        @if (editForm.get('id')?.errors?.['required'] && editForm.get('id')?.touched) {
+                                            <div class="error-message">El ID es requerido</div>
+                                        }
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="e-nom_rango_edad">Nombre del rango</label>
+                                        <input id="e-nom_rango_edad" type="text" formControlName="nom_rango_edad" placeholder="Ej. 6-8 MESES" />
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="e-edadmin_meses">Edad mínima (meses)</label>
+                                        <input id="e-edadmin_meses" type="number" formControlName="edadmin_meses" [min]="0" placeholder="0" />
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="e-edadmax_meses">Edad máxima (meses)</label>
+                                        <input id="e-edadmax_meses" type="number" formControlName="edadmax_meses" [min]="1" placeholder="12" />
+                                    </div>
+
+                                    <div class="form-row">
+                                        <label for="e-activo">Activo</label>
+                                        <label class="switch">
+                                            <input type="checkbox" formControlName="activo" id="e-activo" />
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" [disabled]="!editForm.valid">
+                                        Actualizar Rango de Edad
+                                    </button>
+                                </form>
+
+                                <div class="edades-table">
+                                    <h4>Seleccione el rango a actualizar:</h4>
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre del Rango</th>
+                                                <th>Edad mínima (meses)</th>
+                                                <th>Edad máxima (meses)</th>
+                                                <th class="col-activo">Activo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (e of edades; track e.ID) {
+                                                <tr (click)="setEdadToUpdate(e)" [class.selected]="editForm.get('id')?.value === e.ID">
+                                                    <td>{{ e.ID }}</td>
+                                                    <td>{{ e.NOM_RANGO_EDAD }}</td>
+                                                    <td>{{ e.EDADMIN_MESES }}</td>
+                                                    <td>{{ e.EDADMAX_MESES }}</td>
+                                                    <td class="col-activo">
+                                                        <span class="status-chip" [class.on]="e.ACTIVO == 1" [class.off]="e.ACTIVO == 0">
+                                                            {{ e.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            @case ('delete') {
+                                <form [formGroup]="deleteForm" (ngSubmit)="onSubmitDelete()" class="form-group">
+                                    <div class="form-field">
+                                        <label for="d-id">ID del rango</label>
+                                        <input id="d-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                                        @if (deleteForm.get('id')?.errors?.['required'] && deleteForm.get('id')?.touched) {
+                                            <div class="error-message">El ID es requerido</div>
+                                        }
+                                    </div>
+
+                                    <button type="submit" [disabled]="!deleteForm.valid || !deleteForm.get('id')?.value">
+                                        Eliminar Rango de Edad
+                                    </button>
+                                </form>
+
+                                <div class="edades-table">
+                                    <h4>Seleccione el rango a eliminar:</h4>
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre del Rango</th>
+                                                <th>Edad mínima (meses)</th>
+                                                <th>Edad máxima (meses)</th>
+                                                <th class="col-activo">Activo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (e of edades; track e.ID) {
+                                                <tr (click)="setEdadToDelete(e)" [class.selected]="deleteForm.get('id')?.value === e.ID">
+                                                    <td>{{ e.ID }}</td>
+                                                    <td>{{ e.NOM_RANGO_EDAD }}</td>
+                                                    <td>{{ e.EDADMIN_MESES }}</td>
+                                                    <td>{{ e.EDADMAX_MESES }}</td>
+                                                    <td class="col-activo">
+                                                        <span class="status-chip" [class.on]="e.ACTIVO == 1" [class.off]="e.ACTIVO == 0">
+                                                            {{ e.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

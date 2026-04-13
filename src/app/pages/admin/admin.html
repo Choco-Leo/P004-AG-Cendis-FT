@@ -1,0 +1,15 @@
+<div class="admin-container">
+    <h2>Administración</h2>
+    <nav role="navigation" aria-label="Administración">
+        @for (item of links; track item.path) {
+            <a [routerLink]="item.path" 
+               routerLinkActive="active"
+               [attr.aria-current]="item.path ? 'page' : undefined">
+                {{ item.label }}
+            </a>
+        }
+    </nav>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+</div>

@@ -1,0 +1,303 @@
+.user-container {
+  display: flex;
+  gap: 2rem;
+  height: 100%;
+  min-height: inherit;
+}
+
+/* Menú Lateral */
+.side-nav {
+  width: 16rem;
+  background: var(--ipsset-BLANCO);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--ipsset-04-20);
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.05);
+}
+
+.side-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.side-nav button {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--ipsset-04);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.side-nav button::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--ipsset-01-20);
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.side-nav button:hover {
+  color: var(--ipsset-01);
+  background: var(--ipsset-01-20);
+}
+
+.side-nav button.active {
+  color: var(--ipsset-BLANCO);
+  background: var(--ipsset-01);
+}
+
+.side-nav button.active::before {
+  background: var(--ipsset-BLANCO);
+}
+
+/* Contenedor Principal */
+.content-container {
+  flex: 1;
+  background: var(--ipsset-BLANCO);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 0.0625rem solid var(--ipsset-04-20);
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.05);
+}
+
+.content-section h3 {
+  color: var(--ipsset-01);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 0.75rem;
+  margin: 0;
+}
+
+.content-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 3rem;
+  height: 0.125rem;
+  background: linear-gradient(to right, var(--ipsset-01), var(--ipsset-01-40));
+  border-radius: 0.125rem;
+}
+
+/* Estilos del Formulario */
+.form-group {
+  margin: 2rem 0;
+  max-width: 30rem;
+}
+
+.form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--ipsset-04);
+  font-weight: 600;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--ipsset-04-20);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--ipsset-01);
+  box-shadow: 0 0 0 0.125rem var(--ipsset-01-20);
+}
+
+.form-field select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--ipsset-04-20);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: var(--ipsset-BLANCO);
+  color: var(--ipsset-04);
+  transition: all 0.3s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.form-field select:focus {
+  outline: none;
+  border-color: var(--ipsset-01);
+  box-shadow: 0 0 0 0.125rem var(--ipsset-01-20);
+}
+
+/* Switch “Activo” (L91–97): reutiliza estilo de Cargos */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  vertical-align: middle;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #cbd5e1; /* slate-300 */
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+.switch .slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+}
+.switch input:checked + .slider {
+  background: #10b981; /* emerald-500 */
+}
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+.switch input:focus + .slider {
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.3); /* focus ring */
+}
+
+/* Alineación del campo 'Activo' */
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+.form-row > label:first-child {
+  font-weight: 600;
+}
+
+.error-message {
+  color: var(--ipsset-01);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Contenedor de la tabla (como .cargos-table) */
+.users-table {
+  margin-top: 2rem;
+}
+.users-table h4 {
+  color: var(--ipsset-04);
+  margin-bottom: 1rem;
+}
+
+/* Tabla (referencia cargo.css) */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--ipsset-BLANCO);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.admin-table thead th {
+  background: var(--ipsset-04-20);
+  color: var(--ipsset-04);
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+}
+
+.admin-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 0.0625rem solid var(--ipsset-04-20);
+  color: var(--ipsset-04);
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--ipsset-03-20);
+  cursor: pointer;
+}
+
+.admin-table tbody tr.selected {
+  background: var(--ipsset-01-20);
+}
+
+/* Columna Activo centrada */
+.admin-table .col-activo {
+  text-align: center;
+  width: 120px;
+}
+
+/* Chip de estado (reutilizable) */
+.status-chip {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  border: 1px solid transparent;
+}
+.status-chip.on {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #10b981;
+}
+.status-chip.off {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-color: #ef4444;
+}
+
+/* Botones del Formulario */
+button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--ipsset-01);
+  color: var(--ipsset-BLANCO);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: var(--ipsset-01-80);
+}
+
+button[type="submit"]:disabled {
+  background: var(--ipsset-04-20);
+  cursor: not-allowed;
+}

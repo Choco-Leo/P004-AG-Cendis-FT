@@ -1,0 +1,313 @@
+<div class="menus-container">
+    <nav class="side-nav">
+        <ul>
+            @for (item of menuItems; track item) {
+                <li>
+                    <button 
+                        (click)="setActiveItem(item)"
+                        [class.active]="item.active"
+                        type="button">
+                        {{item.title}}
+                    </button>
+                </li>
+            }
+        </ul>
+    </nav>
+    
+    <div class="content-container">
+        @for (item of menuItems; track item) {
+            @if (item.active) {
+                <div class="content-section">
+                    <h3>{{item.title}}</h3>
+                    <div class="content-body">
+                        @switch (item.id) {
+                            @case ('list') {
+                                <div class="table-container">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Activo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (menu of menus; track menu.ID) {
+                                                <tr (click)="openViewModal(menu)" style="cursor: pointer;" title="Ver detalles">
+                                                    <td>{{menu.NOMBRE}}</td>
+                                                    <td>
+                                                        <span class="status-chip" [class.on]="menu.ACTIVO == 1" [class.off]="menu.ACTIVO == 0">
+                                                            {{ menu.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            @empty {
+                                                <tr><td colspan="2">No hay menús registrados</td></tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            @case ('create') {
+                                <form [formGroup]="menuForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                                    <div class="form-row">
+                                        <div class="form-field">
+                                            <label for="nom_menu">Nombre Menú</label>
+                                            <input id="nom_menu" type="text" formControlName="nom_menu" placeholder="Nombre del menú" />
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="create-activo">Activo</label>
+                                            <div class="switch-wrapper">
+                                                <label class="switch">
+                                                    <input type="checkbox" formControlName="activo" id="create-activo" />
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recetas Section -->
+                                    <div class="ingredients-section">
+                                        <div class="section-header">
+                                            <h4>Recetas Asignadas</h4>
+                                            <button type="button" class="btn-secondary" (click)="openAddRecetaModal()">
+                                                + Agregar Receta
+                                            </button>
+                                        </div>
+                                        
+                                        <table class="admin-table ingredients-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Receta</th>
+                                                    <th>Rango de Edad</th>
+                                                    <th>Remover</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (detail of selectedMenuDetails; track $index) {
+                                                    <tr>
+                                                        <td>{{detail.NOM_RECETA}}</td>
+                                                        <td>{{detail.RANGO_EDAD}}</td>
+                                                        <td>
+                                                            <button type="button" class="btn-icon delete" (click)="removeReceta($index)">
+                                                                X
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                                @empty {
+                                                    <tr><td colspan="3" class="text-center">No hay recetas asignadas</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <button type="submit" [disabled]="!menuForm.valid" class="btn-primary">Crear Menú</button>
+                                </form>
+                            }
+                            @case ('edit') {
+                                <div class="edit-layout">
+                                    <div class="list-side">
+                                        <h4>Seleccione menú a editar</h4>
+                                        <table class="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Activo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (menu of menus; track menu.ID) {
+                                                    <tr (click)="setMenuToUpdate(menu)" [class.selected]="selectedMenuId === menu.ID" style="cursor: pointer;">
+                                                        <td>{{menu.NOMBRE}}</td>
+                                                        <td>
+                                                            <span class="status-chip" [class.on]="menu.ACTIVO == 1" [class.off]="menu.ACTIVO == 0">
+                                                                {{ menu.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="form-side">
+                                        @if (selectedMenuId) {
+                                            <form [formGroup]="menuForm" (ngSubmit)="onSubmitUpdate()" class="form-group">
+                                                <div class="form-row">
+                                                    <div class="form-field">
+                                                        <label>Nombre Menú</label>
+                                                        <input type="text" formControlName="nom_menu" />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>Activo</label>
+                                                        <div class="switch-wrapper">
+                                                            <label class="switch">
+                                                                <input type="checkbox" formControlName="activo" />
+                                                                <span class="slider"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+            
+                                                <!-- Recetas Section -->
+                                                <div class="ingredients-section">
+                                                    <div class="section-header">
+                                                        <h4>Recetas Asignadas</h4>
+                                                        <button type="button" class="btn-secondary" (click)="openAddRecetaModal()">
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <table class="admin-table ingredients-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Receta</th>
+                                                                <th>Rango de Edad</th>
+                                                                <th>Remover</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (detail of selectedMenuDetails; track $index) {
+                                                                <tr>
+                                                                    <td>{{detail.NOM_RECETA}}</td>
+                                                                    <td>{{detail.RANGO_EDAD}}</td>
+                                                                    <td>
+                                                                        <button type="button" class="btn-icon delete" (click)="removeReceta($index)">
+                                                                            X
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                            @empty {
+                                                                <tr>
+                                                                    <td colspan="3" class="text-center">Sin recetas asignadas</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+            
+                                                <button type="submit" [disabled]="!menuForm.valid" class="btn-primary">Actualizar Menú</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            @case ('delete') {
+                                <div class="delete-layout">
+                                    <h4>Seleccione menú a eliminar</h4>
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Borrar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (menu of menus; track menu.ID) {
+                                                <tr>
+                                                    <td>{{menu.NOMBRE}}</td>
+                                                    <td>
+                                                        <button class="btn-danger" (click)="setMenuToDelete(menu); confirmDelete()">
+                                                            Eliminar
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Modal for Adding Recetas -->
+    @if (isModalOpen) {
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Agregar Receta</h3>
+                    <button class="close-btn" (click)="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="detalleForm" (ngSubmit)="addReceta()">
+                        <div class="form-field">
+                            <label>Receta</label>
+                            <select formControlName="id_recetas" style="width: 100%;">
+                                <option value="" disabled>Seleccione receta</option>
+                                @for (receta of recetas; track receta.ID) {
+                                    <option [value]="receta.ID">
+                                        {{receta.NOM_RECETA}}
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+                            <button type="submit" [disabled]="!detalleForm.valid" class="btn-primary">Agregar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal for Viewing Menu Details -->
+    @if (isViewModalOpen && viewMenuData) {
+        <div class="modal-overlay">
+            <div class="modal-content view-modal">
+                <div class="modal-header">
+                    <h3>{{viewMenuData.NOM_MENU}}</h3>
+                    <button class="close-btn" (click)="closeViewModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="view-section">
+                        <h4>Detalles Generales</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Activo:</label>
+                                <span>{{ viewMenuData.ACTIVO == 1 ? 'Sí' : 'No' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="view-section">
+                        <h4>Recetas del Menú</h4>
+                        @if (loadingDet) {
+                            <div class="loading-spinner">Cargando recetas...</div>
+                        } @else {
+                            <table class="view-table">
+                                <thead>
+                                    <tr>
+                                        <th>Receta</th>
+                                        <th>Rango de Edad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (detail of viewMenuDetails; track $index) {
+                                        <tr>
+                                            <td>{{detail.NOM_RECETA}}</td>
+                                            <td>{{detail.RANGO_EDAD}}</td>
+                                        </tr>
+                                    }
+                                    @empty {
+                                        <tr><td colspan="2">No hay recetas en este menú</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" (click)="closeViewModal()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>

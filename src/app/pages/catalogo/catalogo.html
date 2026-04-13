@@ -1,0 +1,15 @@
+<div class="page-container">
+    <h2>Catálogo General</h2>
+    <nav role="navigation" aria-label="Catálogo">
+        @for (item of links; track item.path) {
+            <a [routerLink]="item.path" 
+               routerLinkActive="active"
+               [attr.aria-current]="item.path ? 'page' : undefined">
+                {{ item.label }}
+            </a>
+        }
+    </nav>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+</div>

@@ -1,0 +1,200 @@
+<div class="unidades-container">
+  <nav class="side-nav">
+    <ul>
+      @for (item of menuItems; track item) {
+        <li>
+          <button 
+            (click)="setActiveItem(item)"
+            [class.active]="item.active"
+            type="button">
+            {{item.title}}
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="content-container">
+    @for (item of menuItems; track item) {
+      @if (item.active) {
+        <div class="content-section">
+          <h3>{{item.title}}</h3>
+          <div class="content-body">
+            @switch (item.id) {
+              @case ('list') {
+                <div class="unidades-table">
+                  <h4>Unidades existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la unidad</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of unidades; track u.ID) {
+                        <tr>
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOM_UNIDAD }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('create') {
+                <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                  <div class="form-field">
+                    <label for="c-nom_unidad">Nombre de la unidad</label>
+                    <input id="c-nom_unidad" type="text" formControlName="nom_unidad" placeholder="Ej. Kg, Lt, Paquete..." />
+                    @if (createForm.get('nom_unidad')?.errors?.['required'] && createForm.get('nom_unidad')?.touched) {
+                      <div class="error-message">El nombre es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-row">
+                    <label for="c-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="c-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!createForm.valid">
+                    Crear Unidad
+                  </button>
+                </form>
+                <div class="unidades-table">
+                  <h4>Unidades existentes</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la unidad</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of unidades; track u.ID) {
+                        <tr>
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOM_UNIDAD }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('edit') {
+                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="form-group">
+                  <div class="form-field">
+                    <label for="e-id">ID de la unidad</label>
+                    <input id="e-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                    @if (editForm.get('id')?.errors?.['required'] && editForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <label for="e-nom_unidad">Nombre de la unidad</label>
+                    <input id="e-nom_unidad" type="text" formControlName="nom_unidad" placeholder="Ej. Unidad" />
+                  </div>
+
+                  <div class="form-row">
+                    <label for="e-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="e-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!editForm.valid || !editForm.get('id')?.value">
+                    Actualizar Unidad
+                  </button>
+                </form>
+
+                <div class="unidades-table">
+                  <h4>Seleccione la unidad a actualizar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la unidad</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of unidades; track u.ID) {
+                        <tr (click)="setUnidadToUpdate(u)" [class.selected]="editForm.get('id')?.value === u.ID">
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOM_UNIDAD }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+              @case ('delete') {
+                <form [formGroup]="deleteForm" (ngSubmit)="onSubmitDelete()" class="form-group">
+                  <div class="form-field">
+                    <label for="d-id">ID de la unidad</label>
+                    <input id="d-id" type="number" formControlName="id" [min]="1" placeholder="ID" />
+                    @if (deleteForm.get('id')?.errors?.['required'] && deleteForm.get('id')?.touched) {
+                      <div class="error-message">El ID es requerido</div>
+                    }
+                  </div>
+
+                  <button type="submit" [disabled]="!deleteForm.valid || !deleteForm.get('id')?.value">
+                    Eliminar Unidad
+                  </button>
+                </form>
+
+                <div class="unidades-table">
+                  <h4>Seleccione la unidad a eliminar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre de la unidad</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (u of unidades; track u.ID) {
+                        <tr (click)="setUnidadToDelete(u)" [class.selected]="deleteForm.get('id')?.value === u.ID">
+                          <td>{{ u.ID }}</td>
+                          <td>{{ u.NOM_UNIDAD }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="u.ACTIVO == 1" [class.off]="u.ACTIVO == 0">
+                              {{ u.ACTIVO == 1 ? 'Sí' : 'No' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

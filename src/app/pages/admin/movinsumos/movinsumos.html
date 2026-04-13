@@ -1,0 +1,83 @@
+<div class="movinsumos-container">
+  <div class="content-container">
+    <div class="content-section">
+      <h3>Movimientos de Insumos por Cendi</h3>
+      <div class="content-body">
+        <div class="dropdown">
+          <button class="dropdown-toggle" (click)="toggleDropdown()">
+            {{ selectedCendiLabel || 'Selecciona Cendi' }}
+            <span class="chevron"></span>
+          </button>
+
+          @if (dropdownOpen) {
+            <div class="dropdown-menu">
+              @for (cendi of cendis; track cendi) {
+                <button class="dropdown-item" (click)="selectCendi(cendi)">
+                  {{ cendi.NOM_CENDI }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (loading) {
+          <p class="loading">Cargando movimientos...</p>
+        }
+
+        @if (errorMsg) {
+          <p class="error">{{ errorMsg }}</p>
+        }
+
+        @if (!loading && selectedCendiId && movimientos.length === 0) {
+          <p>No hay movimientos registrados para este Cendi.</p>
+        }
+
+        @if (movimientos.length > 0) {
+          <table>
+            <thead>
+              <tr>
+                <th>ID Insumo</th>
+                <th>Insumo</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+                <th>Tipo</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (mov of movimientos; track mov) {
+                <tr>
+                  <td>{{ mov.ID }}</td>
+                  <td>{{ mov.INSUMO }}</td>
+                  <td>{{ mov.CANTIDAD | number:'1.2-2' }}</td>
+                  <td>{{ mov.UNIDAD }}</td>
+                  <td>
+                    <span
+                      [class.badge-entrada]="(mov.TIPO_MOVIMIENTO || mov.TIPO) === 'ENTRADA'"
+                      [class.badge-salida]="(mov.TIPO_MOVIMIENTO || mov.TIPO) === 'SALIDA'"
+                    >
+                      {{ mov.TIPO_MOVIMIENTO || mov.TIPO }}
+                    </span>
+                  </td>
+                  <td>{{ mov.USUARIO }}</td>
+                  <td>{{ mov.FCHA | date:'dd-MM-yyyy HH:mm' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <div class="pagination">
+            <button
+              class="pagination-next"
+              (click)="nextPage()"
+              [disabled]="loading || !selectedCendiId || movimientos.length < pageSize"
+            >
+              Ver siguientes {{ pageSize }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

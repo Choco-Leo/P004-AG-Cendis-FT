@@ -1,0 +1,24 @@
+<div class="login-container">
+  <h2>Iniciar Sesión</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="login_cendi">Usuario</label>
+      <input type="text" id="login_cendi" name="login_cendi" placeholder="Escribe tu usuario" formControlName="login_cendi">
+      
+      @if (loginForm.get('login_cendi')?.errors?.['required'] && loginForm.get('login_cendi')?.touched) {
+        <div class="error-message">El Usuario es Requerido</div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="password_cendi">Contraseña</label>
+      <input type="password" id="password_cendi" name="password_cendi" placeholder="Escribe tu contraseña" formControlName="password_cendi">
+      
+      @if (loginForm.get('password_cendi')?.errors?.['required'] && loginForm.get('password_cendi')?.touched) {
+        <div class="error-message">La Contraseña es Requerida</div>
+      }
+    </div>
+
+    <button type="submit" class="btn-login" [disabled]="!loginForm.valid">Entrar</button>
+  </form>
+</div>

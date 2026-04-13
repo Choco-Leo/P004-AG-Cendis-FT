@@ -1,0 +1,81 @@
+<div class="menus-container calendario-container">
+
+    <div class="content-container">
+        <div class="content-section">
+            <h3>Calendario de Menús por Fecha</h3>
+
+            <div class="content-body">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Fecha</label>
+                        <input type="date" [value]="viewDate" (change)="setFecha($event.target.value)" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Menú global (aplicar a todos los CENDIS)</label>
+                        <select
+                            [ngModel]="globalMenuId"
+                            (ngModelChange)="onChangeGlobalMenu($event)">
+                            <option value="">Sin menú global</option>
+                            @for (menu of menus; track menu.ID) {
+                                <option [value]="menu.ID">
+                                    {{menu.NOMBRE || menu.NOM_MENU}}
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                @if (viewDate) {
+                    <div class="matrix-section">
+                        <h4>Asignar menús a CENDIS para {{ viewDate | date:'dd-MM-yyyy' }}</h4>
+
+                        <div class="table-container">
+                            <table class="matrix-table">
+                                <thead>
+                                    <tr>
+                                        <th>CENDI</th>
+                                        <th>Menú</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (cendi of cendis; track cendi.ID) {
+                                        <tr>
+                                            <td class="cendi-name">{{cendi.NOM_CENDI}}</td>
+                                            <td>
+                                                <select
+                                                    [ngModel]="getSelectedMenuId(cendi.ID)"
+                                                    (ngModelChange)="onChangeMenu(cendi.ID, $event)">
+                                                    <option value="" [disabled]="getSelectedMenuId(cendi.ID)">
+                                                        Sin menú
+                                                    </option>
+                                                    @for (menu of menus; track menu.ID) {
+                                                        <option [value]="menu.ID">
+                                                            {{menu.NOMBRE || menu.NOM_MENU}}
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @empty {
+                                        <tr>
+                                            <td colspan="2">No hay CENDIS registrados</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn-primary" (click)="onSubmitCreate()" [disabled]="hasExistingForDate">Crear</button>
+                        <button class="btn-secondary" (click)="onSubmitUpdate()" [disabled]="!hasExistingForDate">Actualizar</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

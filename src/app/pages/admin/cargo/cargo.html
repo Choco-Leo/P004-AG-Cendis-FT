@@ -1,0 +1,280 @@
+<div class="cargo-container">
+    <nav class="side-nav">
+        <ul>
+            @for (item of menuItems; track item) {
+                <li>
+                    <button 
+                        (click)="setActiveItem(item)"
+                        [class.active]="item.active"
+                        type="button">
+                        {{item.title}}
+                    </button>
+                </li>
+            }
+        </ul>
+    </nav>    
+    <div class="content-container">
+        @for (item of menuItems; track item) {
+            @if (item.active) {
+                <div class="content-section">
+                    <h3>{{item.title}}</h3>
+                    <div class="content-body">
+                        @switch (item.id) {
+                            @case ('permisos') {
+                                <div class="cargo-select-field">
+                                  <label class="cargo-select-label" for="id_cargos">Cargo</label>
+                                  <div class="cargo-select-wrapper">
+                                    <select class="cargo-select" #cargoSel id="id_cargos" (change)="setPermisosAsignados(+cargoSel.value)">
+                                      <option value="" disabled [selected]="!selectedCargoForPermisos">Seleccione un cargo</option>
+                                      @for (cargo of cargos; track cargo.ID) {
+                                        <option [value]="cargo.ID" [selected]="selectedCargoForPermisos === cargo.ID">{{ cargo.NOM_CARGO }}</option>
+                                      }
+                                      @empty {
+                                        <option disabled>Sin cargos disponibles</option>
+                                      }
+                                    </select>
+                                  </div>
+                                  <small class="cargo-select-help">Elija un cargo para gestionar permisos.</small>
+                                </div>
+                                
+                                <div class="permisos-container">
+                                    <div class="permisos-actions">
+                                      <button type="button"
+                                              (click)="asignarSeleccionados()"
+                                              [disabled]="!selectedCargoForPermisos || selectedPermisosNoAsignadosIds.length === 0">
+                                        Agregar seleccionados
+                                      </button>
+                                      <button type="button"
+                                              (click)="quitarSeleccionados()"
+                                              [disabled]="!selectedCargoForPermisos || selectedPermisosAsignadosIds.length === 0">
+                                        Quitar seleccionados
+                                      </button>
+                                    </div>
+                                
+                                    <div class="permisos-section">
+                                        <h4>Permisos Asignados</h4>
+                                        <table>
+                                          <thead>
+                                            <tr>
+                                              <th>
+                                                <input type="checkbox"
+                                                       [checked]="permisosAsignados.length > 0 && selectedPermisosAsignadosIds.length === permisosAsignados.length"
+                                                       [disabled]="permisosAsignados.length === 0"
+                                                       (change)="toggleAllAsignados($any($event.target).checked)"
+                                                       title="Seleccionar todos">
+                                              </th>
+                                              <th>ID</th>
+                                              <th>Módulo</th>
+                                              <th>Acción</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            @for (permiso of permisosAsignados; track permiso.ID) {
+                                              <tr (click)="chkAsignado.click()" style="cursor: pointer;">
+                                                <td>
+                                                  <input #chkAsignado type="checkbox"
+                                                         [checked]="selectedPermisosAsignadosIds.includes(permiso.ID)"
+                                                         (click)="$event.stopPropagation()"
+                                                         (change)="toggleAsignado(permiso.ID, chkAsignado.checked)">
+                                                </td>
+                                                <td>{{ permiso.ID }}</td>
+                                                <td>{{ permiso.MODULO }}</td>
+                                                <td>{{ permiso.ACCION }}</td>
+                                              </tr>
+                                            }
+                                            @empty {
+                                              <tr><td colspan="4">Sin permisos asignados</td></tr>
+                                            }
+                                          </tbody>
+                                        </table>
+                                    </div>
+                                
+                                    <div class="permisos-section" style="margin-top: 1rem;">
+                                        <h4>Permisos No Asignados</h4>
+                                        <table>
+                                          <thead>
+                                            <tr>
+                                              <th>
+                                                <input type="checkbox"
+                                                       [checked]="permisosNoAsignados.length > 0 && selectedPermisosNoAsignadosIds.length === permisosNoAsignados.length"
+                                                       [disabled]="permisosNoAsignados.length === 0"
+                                                       (change)="toggleAllNoAsignados($any($event.target).checked)"
+                                                       title="Seleccionar todos">
+                                              </th>
+                                              <th>ID</th>
+                                              <th>Módulo</th>
+                                              <th>Acción</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            @for (permiso of permisosNoAsignados; track permiso.ID) {
+                                              <tr (click)="chkNoAsignado.click()" style="cursor: pointer;">
+                                                <td>
+                                                  <input #chkNoAsignado type="checkbox"
+                                                         [checked]="selectedPermisosNoAsignadosIds.includes(permiso.ID)"
+                                                         (click)="$event.stopPropagation()"
+                                                         (change)="toggleNoAsignado(permiso.ID, chkNoAsignado.checked)">
+                                                </td>
+                                                <td>{{ permiso.ID }}</td>
+                                                <td>{{ permiso.MODULO }}</td>
+                                                <td>{{ permiso.ACCION }}</td>
+                                              </tr>
+                                            }
+                                            @empty {
+                                              <tr><td colspan="4">Sin permisos disponibles</td></tr>
+                                            }
+                                          </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+
+                            }
+                            @case ('create') {
+                                <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="form-group">
+                                    <div class="form-field">
+                                        <label for="nom_cargo">Nombre del Cargo:</label>
+                                        <input type="text" id="nom_cargo" formControlName="nom_cargo" placeholder="Ingrese el nombre del cargo">
+                                        
+                                        @if (createForm.get('nom_cargo')?.errors?.['required'] && createForm.get('nom_cargo')?.touched) {
+                                            <div class="error-message">El nombre del cargo es requerido</div>
+                                        }
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="create-activo">Activo</label>
+                                        <label class="switch">
+                                            <input type="checkbox" formControlName="activo" id="create-activo" />
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <button type="submit" [disabled]="!createForm.valid">Crear Cargo</button>
+                                </form>
+                                <div class="cargos-table">
+                                    <h4>Cargos Existentes</h4>
+                                    <!-- Tabla: Crear -->
+                                    <table class="admin-table cargos-table">
+                                      <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre del Cargo</th>
+                                            <th>Activo</th>
+                                        </tr>
+                                        </thead>
+                                        @for (cargo of cargos; track cargo.ID) {
+                                            <tr>
+                                                <td>{{cargo.ID}}</td>
+                                                <td>{{cargo.NOM_CARGO}}</td>
+                                                <td >
+                                                  <span class="status-chip" [class.on]="cargo.ACTIVO == 1" [class.off]="cargo.ACTIVO == 0">
+                                                    {{ cargo.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                  </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </div>
+                            }
+                            @case ('edit') {
+                                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="form-group">
+                                    <div class="form-field">
+                                        <label for="id">ID del Cargo:</label>
+                                        <input type="number" formControlName="id" placeholder="Ingrese el ID del cargo" [min]="1">
+                                        
+                                        @if (editForm.get('id')?.errors?.['required'] && editForm.get('id')?.touched) {
+                                            <div class="error-message">El ID del cargo es requerido</div>
+                                        }
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="nom_cargo">Nombre del Cargo:</label>
+                                        <input type="text" id="nom_cargo" formControlName="nom_cargo" placeholder="Ingrese el nombre del cargo">
+                                        
+                                        @if (editForm.get('nom_cargo')?.errors?.['required'] && editForm.get('nom_cargo')?.touched) {
+                                            <div class="error-message">El nombre del cargo es requerido</div>
+                                        }
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="edit-activo">Activo</label>
+                                        <label class="switch">
+                                            <input type="checkbox" formControlName="activo" id="edit-activo" />
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" [disabled]="!editForm.valid || !editForm.get('id')?.value">
+                                        Actualizar Cargo
+                                    </button>
+                                </form> 
+                                <div class="cargos-table">
+                                    <h4>Seleccione el cargo a actualizar:</h4>
+                                        <!-- Tabla: Editar -->
+                                        <table class="admin-table cargos-table">
+                                          <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre del Cargo</th>
+                                                <th>Activo</th>
+                                            </tr>
+                                        </thead>
+                                            @for (cargo of cargos; track cargo.ID) {
+                                                <tr (click)="setCargoToUpdate(cargo)"
+                                                    [class.selected]="editForm.get('id')?.value === cargo.ID">
+                                                    <td>{{cargo.ID}}</td>
+                                                    <td>{{cargo.NOM_CARGO}}</td>
+                                                    <td >
+                                                      <span class="status-chip" [class.on]="cargo.ACTIVO == 1" [class.off]="cargo.ACTIVO == 0">
+                                                        {{ cargo.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                      </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                </div>
+                            }
+                            @case ('delete') {
+                                <form [formGroup]="deleteForm" (ngSubmit)="onSubmitDelete()" class="form-group">
+                                    <div class="form-field">
+                                        <label for="id">ID del Cargo:</label>
+                                        <input type="number" id="id" formControlName="id" placeholder="Ingrese el ID del cargo" [min]="1">
+                                        
+                                        @if (deleteForm.get('id')?.errors?.['required'] && deleteForm.get('id')?.touched) {
+                                            <div class="error-message">El ID del cargo es requerido</div>
+                                        }
+                                    </div>
+
+                                    <button type="submit" [disabled]="!deleteForm.valid || !deleteForm.get('id')?.value">
+                                        Eliminar Cargo
+                                    </button>
+                                </form> 
+                                <div class="cargos-table">
+                                    <h4>Seleccione el cargo a eliminar:</h4>
+                                        <!-- Tabla: Eliminar -->
+                                        <table class="admin-table cargos-table">
+                                          <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre del Cargo</th>
+                                                <th>Activo</th>
+                                            </tr>
+                                            </thead>
+                                            @for (cargo of cargos; track cargo.ID) {
+                                                <tr (click)="setCargoToDelete(cargo)"
+                                                    [class.selected]="deleteForm.get('id')?.value === cargo.ID">
+                                                    <td>{{cargo.ID}}</td>
+                                                    <td>{{cargo.NOM_CARGO}}</td>
+                                                    <td>
+                                                      <span class="status-chip" [class.on]="cargo.ACTIVO == 1" [class.off]="cargo.ACTIVO == 0">
+                                                        {{ cargo.ACTIVO == 1 ? 'Sí' : 'No' }}
+                                                      </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

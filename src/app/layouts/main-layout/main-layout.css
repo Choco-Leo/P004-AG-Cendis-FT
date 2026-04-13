@@ -1,0 +1,17 @@
+.main-layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.main-layout-header,
+.main-layout-footer {
+  flex-shrink: 0;
+}
+
+.main-layout-content {
+  flex: 1;
+  max-width: 75rem;
+  margin: 0 auto;
+}
+

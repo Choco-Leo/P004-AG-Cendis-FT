@@ -1,0 +1,35 @@
+<header class="topbar" role="banner">
+  <div class="brand-container">
+    <img class="brand" routerLink="/Dashbord" (click)="closeMenu()" src="/logo5-2.PNG" alt="Logo">
+  </div>
+
+  <button class="menu-btn" 
+          (click)="toggleMenu()" 
+          [class.is-active]="isMenuOpen()"
+          [attr.aria-expanded]="isMenuOpen()"
+          aria-controls="offcanvas" 
+          aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav class="nav-desktop" aria-label="Principal">
+    @for (item of links; track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="active">{{ item.label }}</a>
+    }
+    <button class="logout" (click)="logout()">Cerrar Sesión</button>
+  </nav>
+</header>
+
+@if (isMenuOpen()) {
+  <div class="overlay" (click)="closeMenu()"></div>
+}
+
+<aside id="offcanvas" class="offcanvas" [class.open]="isMenuOpen()" role="dialog" aria-modal="true">
+  <nav class="nav-mobile" aria-label="Móvil">
+    @for (item of links; track item.path) {
+      <a (click)="navAndClose(item.path)">{{ item.label }}</a>
+    }
+    <button class="logout" (click)="logout()">Cerrar Sesión</button>
+  </nav>
+</aside>
+

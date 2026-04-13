@@ -1,0 +1,147 @@
+<div class="alminsumos-container">
+  <nav class="side-nav">
+    <ul>
+      @for (item of menuItems; track item) {
+        <li>
+          <button 
+            (click)="setActiveItem(item)" 
+            [class.active]="item.active"
+            type="button">
+            {{ item.title }}
+          </button>
+        </li>
+      }
+    </ul>
+    @if (isAdmin) {
+      <div class="sidebar-filter">
+        <label for="cendi-select">Filtrar por Cendi:</label>
+        <select id="cendi-select" (change)="onCendiChange($event)">
+          <option [value]="null">Seleccione un Cendi</option>
+          @for (c of cendis; track c.ID) {
+            <option [value]="c.ID">{{ c.NOM_CENDI }}</option>
+          }
+        </select>
+      </div>
+    }
+  </nav>
+
+  <div class="content-container">
+    @for (item of menuItems; track item) {
+      @if (item.active) {
+        <div class="content-section">
+          <h3>{{ item.title }}</h3>
+          <div class="content-body">
+            @switch (item.id) {
+
+              @case ('list') {
+                <div class="insumos-table">
+                  <h4>Insumos en Almacén</h4>
+                  
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Insumo</th>
+                        <th>Cantidad</th>
+                        <th>Unidad</th>
+                        <th>Presentación</th>
+                        <th>Usuario</th>
+                        <th>Última Actualización</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (i of insumos; track i.ID) {
+                        <tr>
+                          <td>{{ i.ID }}</td>
+                          <td>{{ i.INSUMO }}</td>
+                          <td>{{ i.CANTIDAD | number:'1.2-2' }}</td>
+                          <td>{{ i.UNIDAD }}</td>
+                          <td>{{ i.PRESENTACION }}</td>
+                          <td>{{ i.USUARIO }}</td>
+                          <td>{{ i.ULT_ACTUALIZACION | date:'dd/MM/yyyy HH:mm' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              @case ('edit') {
+                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()">
+                  <input type="hidden" formControlName="id" />
+                  
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="e-nom_insumo">Nombre del Insumo</label>
+                      <input id="e-nom_insumo" type="text" formControlName="nom_insumo" />
+                    </div>
+                    <div class="form-field">
+                      <label for="e-unidad">Unidad</label>
+                      <input id="e-unidad" type="text" formControlName="unidad" />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="e-presentacion">Presentación</label>
+                      <input id="e-presentacion" type="text" formControlName="presentacion" />
+                    </div>
+                    <div class="form-field">
+                      <label>Cantidad Actual</label>
+                      <input type="text" [value]="selectedInsumoCurrentQuantity" disabled style="background-color: #f3f4f6; font-weight: bold;" />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="e-agregar" style="color: #059669; font-weight: 600;">Agregar Cantidad (+)</label>
+                      <input id="e-agregar" type="number" formControlName="cantidad_agregar" min="0" step="any" placeholder="0" style="border-color: #10b981;" />
+                    </div>
+                    <div class="form-field">
+                      <label for="e-restar" style="color: #dc2626; font-weight: 600;">Restar Cantidad (-)</label>
+                      <input id="e-restar" type="number" formControlName="cantidad_restar" min="0" step="any" placeholder="0" style="border-color: #ef4444;" />
+                    </div>
+                  </div>
+
+                  <button type="submit" [disabled]="!editForm.valid || !editForm.get('id')?.value">
+                    Actualizar Cantidad
+                  </button>
+                </form>
+
+                <div class="insumos-table">
+                  <h4>Seleccione el insumo a actualizar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Insumo</th>
+                        <th>Cantidad</th>
+                        <th>Unidad</th>
+                        <th>Presentación</th>
+                        <th>Usuario</th>
+                        <th>Última Actualización</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (i of insumos; track i.ID) {
+                        <tr (click)="setInsumoToUpdate(i)">
+                          <td>{{ i.ID }}</td>
+                          <td>{{ i.INSUMO }}</td>
+                          <td>{{ i.CANTIDAD | number:'1.2-2' }}</td>
+                          <td>{{ i.UNIDAD }}</td>
+                          <td>{{ i.PRESENTACION }}</td>
+                          <td>{{ i.USUARIO }}</td>
+                          <td>{{ i.ULT_ACTUALIZACION | date:'dd/MM/yyyy HH:mm' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

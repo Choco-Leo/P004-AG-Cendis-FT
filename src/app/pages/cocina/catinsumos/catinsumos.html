@@ -1,0 +1,330 @@
+<div class="catinsumos-container">
+  <nav class="side-nav">
+    <ul>
+      @for (item of menuItems; track item) {
+        <li>
+          <button 
+            (click)="setActiveItem(item)" 
+            [class.active]="item.active"
+            type="button">
+            {{ item.title }}
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="content-container">
+    @for (item of menuItems; track item) {
+      @if (item.active) {
+        <div class="content-section">
+          <h3>{{ item.title }}</h3>
+          <div class="content-body">
+            @switch (item.id) {
+
+              @case ('list') {
+                <div class="insumos-table">
+                  <h4>Insumos existentes</h4>
+                  
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Contenido</th>
+                        <th>Unidad</th>
+                        <th>Presentación</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Usuario</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (i of insumos; track i.ID) {
+                        <tr (click)="setInsumoToUpdate(i)" [class.selected]="editForm.get('id')?.value === i.ID" style="cursor: pointer;" title="Seleccionar para editar">
+                          <td>{{ i.ID }}</td>
+                          <td>{{ i.NOM_INSUMO }}</td>
+                          <td>{{ i.CONTENIDO | number:'1.2-2' }}</td>
+                          <td>{{ i.UNIDAD }}</td>
+                          <td>{{ i.PRESENTACION }}</td>
+                          <td>{{ i.CATEGORIA }}</td>
+                          <td>{{ i.PRECIO | number:'1.2-2' }}</td>
+                          <td>{{ i.USUARIO }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="i.ACTIVO" [class.off]="!i.ACTIVO">
+                              {{ i.ACTIVO ? 'Activo' : 'Inactivo' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              @case ('create') {
+                <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()">
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="c-nom_insumo">Nombre del insumo</label>
+                      <input id="c-nom_insumo" type="text" formControlName="nom_insumo" placeholder="Ej. Leche" />
+                    </div>
+                    <div class="form-field">
+                      <label for="c-contenido">Contenido</label>
+                      <input id="c-contenido" type="number" formControlName="contenido" min="0.01" step="0.01" placeholder="Ej. 1.5" />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="c-id_unidades">Unidad</label>
+                      <select id="c-id_unidades" formControlName="id_unidades">
+                        <option [ngValue]="null">Seleccione unidad</option>
+                        @for (u of unidades; track u.ID) {
+                          <option [ngValue]="u.ID">{{ u.NOM_UNIDAD }}</option>
+                        }
+                      </select>
+                    </div>
+
+                    <div class="form-field">
+                      <label for="c-id_presentaciones">Presentación</label>
+                      <select id="c-id_presentaciones" formControlName="id_presentaciones">
+                        <option [ngValue]="null">Seleccione presentación</option>
+                        @for (p of presentaciones; track p.ID) {
+                          <option [ngValue]="p.ID">{{ p.NOM_PRESENTACION }}</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="c-categoria">Categoría</label>
+                      <select id="c-categoria" formControlName="categoria">
+                        <option [ngValue]="null">Seleccione categoría</option>
+                        <option value="Alimentos">Alimentos</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Merceria">Mercería</option>
+                        <option value="Papeleria">Papelería</option>
+                        <option value="Desechable">Desechable</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label for="c-precio">Precio</label>
+                      <input id="c-precio" type="number" formControlName="precio" min="0.01" step="0.01" placeholder="Ej. 25.50" />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <label for="c-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="c-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!createForm.valid">Crear Insumo</button>
+                </form>
+                <div class="insumos-table">
+                  <h4>Insumos existentes</h4>
+                  
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Contenido</th>
+                        <th>Unidad</th>
+                        <th>Presentación</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Usuario</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (i of insumos; track i.ID) {
+                        <tr>
+                          <td>{{ i.ID }}</td>
+                          <td>{{ i.NOM_INSUMO }}</td>
+                          <td>{{ i.CONTENIDO | number:'1.2-2' }}</td>
+                          <td>{{ i.UNIDAD }}</td>
+                          <td>{{ i.PRESENTACION }}</td>
+                          <td>{{ i.CATEGORIA }}</td>
+                          <td>{{ i.PRECIO | number:'1.2-2' }}</td>
+                          <td>{{ i.USUARIO }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="i.ACTIVO" [class.off]="!i.ACTIVO">
+                              {{ i.ACTIVO ? 'Activo' : 'Inactivo' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              @case ('edit') {
+                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()">
+                  <input type="hidden" formControlName="id" />
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="e-nom_insumo">Nombre del insumo</label>
+                      <input id="e-nom_insumo" type="text" formControlName="nom_insumo" placeholder="Ej. Leche" />
+                    </div>
+                    <div class="form-field">
+                      <label for="e-contenido">Contenido</label>
+                      <input id="e-contenido" type="number" formControlName="contenido" min="0.01" step="0.01" placeholder="Ej. 1.5" />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="e-id_unidades">Unidad</label>
+                      <select id="e-id_unidades" formControlName="id_unidades">
+                        <option [ngValue]="null">Seleccione unidad</option>
+                        @for (u of unidades; track u.ID) {
+                          <option [ngValue]="u.ID">{{ u.NOM_UNIDAD }}</option>
+                        }
+                      </select>
+                    </div>
+
+                    <div class="form-field">
+                      <label for="e-id_presentaciones">Presentación</label>
+                      <select id="e-id_presentaciones" formControlName="id_presentaciones">
+                        <option [ngValue]="null">Seleccione presentación</option>
+                        @for (p of presentaciones; track p.ID) {
+                          <option [ngValue]="p.ID">{{ p.NOM_PRESENTACION }}</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="c-categoria">Categoría</label>
+                      <select id="c-categoria" formControlName="categoria">
+                        <option [ngValue]="null">Seleccione categoría</option>
+                        <option value="Alimentos">Alimentos</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Merceria">Mercería</option>
+                        <option value="Papeleria">Papelería</option>
+                        <option value="Desechable">Desechable</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label for="e-precio">Precio</label>
+                      <input id="e-precio" type="number" formControlName="precio" min="0.01" step="0.01" placeholder="Ej. 25.50" />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <label for="e-activo">Activo</label>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="activo" id="e-activo" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <button type="submit" [disabled]="!editForm.valid || !editForm.get('id')?.value">
+                    Actualizar Insumo
+                  </button>
+                </form>
+
+                <div class="insumos-table">
+                  <h4>Seleccione el insumo a actualizar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Contenido</th>
+                        <th>Unidad</th>
+                        <th>Presentación</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Usuario</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (i of insumos; track i.ID) {
+                         <tr (click)="setInsumoToUpdate(i)" [class.selected]="editForm.get('id')?.value === i.ID" style="cursor: pointer;" title="Seleccionar para editar">
+                          <td>{{ i.ID }}</td>
+                          <td>{{ i.NOM_INSUMO }}</td>
+                          <td>{{ i.CONTENIDO | number:'1.2-2' }}</td>
+                          <td>{{ i.UNIDAD }}</td>
+                          <td>{{ i.PRESENTACION }}</td>
+                          <td>{{ i.CATEGORIA }}</td>
+                          <td>{{ i.PRECIO | number:'1.2-2' }}</td>
+                          <td>{{ i.USUARIO }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="i.ACTIVO" [class.off]="!i.ACTIVO">
+                              {{ i.ACTIVO ? 'Activo' : 'Inactivo' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              @case ('delete') {
+                <form [formGroup]="deleteForm" (ngSubmit)="onSubmitDelete()">
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label for="d-id">ID</label>
+                      <input id="d-id" type="number" formControlName="id" placeholder="ID a eliminar" />
+                    </div>
+                  </div>
+
+                  <button type="submit" [disabled]="!deleteForm.valid">Eliminar Insumo</button>
+                </form>
+
+                <div class="insumos-table">
+                  <h4>Seleccione el insumo a eliminar:</h4>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Contenido</th>
+                        <th>Unidad</th>
+                        <th>Presentación</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th class="col-activo">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (i of insumos; track i.ID) {
+                        <tr (click)="setInsumoToDelete(i)">
+                          <td>{{ i.ID }}</td>
+                          <td>{{ i.NOM_INSUMO }}</td>
+                          <td>{{ i.CONTENIDO | number:'1.2-2' }}</td>
+                          <td>{{ i.UNIDAD }}</td>
+                          <td>{{ i.PRESENTACION }}</td>
+                          <td>{{ i.CATEGORIA }}</td>
+                          <td>{{ i.PRECIO | number:'1.2-2' }}</td>
+                          <td class="col-activo">
+                            <span class="status-chip" [class.on]="i.ACTIVO == 1" [class.off]="i.ACTIVO == 0">
+                              {{ i.ACTIVO == 1 ? 'Activo' : 'Inactivo' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
