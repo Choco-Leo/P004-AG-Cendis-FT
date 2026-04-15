@@ -1,6 +1,116 @@
-# FrontEND
+# Sistema Frontend para Gestión de CENDIS
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
+Este proyecto es una aplicación web desarrollada en Angular para la gestión del sistema P004-AG-Cendis. Permite a los usuarios interactuar con los diferentes módulos del sistema de manera visual, intuitiva y organizada.
+
+Encargado de la experiencia de usuario (UI/UX), consumo de la API y visualización de la información relacionada con usuarios, insumos, pedidos y operaciones de los CENDIS.
+
+---
+
+## Características
+
+- Interfaz moderna, responsiva y fácil de usar
+- Sistema modular por áreas funcionales
+- Gestión completa mediante operaciones CRUD
+- Visualización de información en tiempo real
+- Integración con backend mediante API REST
+
+---
+
+## Módulos del sistema
+
+### Administración
+- Usuarios
+- Accesos
+- Movimientos de insumos
+- Cargos
+---
+
+### Catálogo
+- CENDIS
+- Rango de edades
+- Horarios
+- Presentaciones
+- Unidades
+
+Todos los módulos son CRUD  
+Al crear un CENDI, se generan automáticamente los insumos en su almacén
+
+---
+
+### Cocina
+- Catálogo de insumos: Insumos utilizados en los CENDIS, Al crear un insumo, se genera automáticamente en todos los almacenes
+
+- Almacén de insumos
+- Recetas y menús
+
+---
+
+### Pedidos
+- Generación automática de pedidos
+- Cálculo basado en:
+  - Rango de edades
+  - Cantidad de niños
+  - Menú asignado en calendario
+
+Los cálculos se realizan automáticamente
+
+---
+
+### Calendario
+
+- Asignación de menús por CENDI
+- Base para la generación de pedidos
+
+---
+
+### Impresiones
+
+  - Insumos por menú
+  - Detalles de pedidos
+  - Reportes por rango de fechas (acumulados)
+
+---
+
+## Tecnologías
+
+### Frontend (FrontEND)
+- Framework : Angular
+- Lenguaje : TypeScript
+- Estilos : CSS
+- Comunicación : HttpClient (consumo de API REST)
+
+---
+
+## Ejecución local
+
+```bash
+cd FrontEND
+npm install
+ng serve
+```
+
+## Vista previa
+
+<p align="center">
+
+<img src="public/pw01.png" width="600">
+<img src="public/pw02.png" width="600">
+<img src="public/pw03.png" width="600">
+<img src="public/pw04.png" width="600">
+<img src="public/pw05.png" width="600">
+<img src="public/pw06.png" width="600">
+<img src="public/pw07.png" width="600">
+<img src="public/pw08.png" width="600">
+<img src="public/pw09.png" width="600">
+<img src="public/pw10.png" width="600">
+<img src="public/pw11.png" width="600">
+<img src="public/pw12.png" width="600">
+<img src="public/pw13.png" width="600">
+<img src="public/pw14.png" width="600">
+<img src="public/pw15.png" width="600">
+<img src="public/pw16.png" width="600">
+</p>
+
 
 ## Development server
 
